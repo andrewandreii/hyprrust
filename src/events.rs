@@ -322,7 +322,7 @@ impl HyprlandConnection {
         path.push(".socket2.sock");
         let socket = UnixStream::connect(path).await?;
 
-        let (tx, mut rx) = broadcast::channel(16);
+        let (tx, rx) = broadcast::channel(16);
 
         self.event_handle = Some(
             tokio::spawn(async move {
