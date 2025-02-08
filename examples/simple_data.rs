@@ -19,7 +19,6 @@ async fn main() -> Result<(), io::Error> {
         "Decorations active for current window: {:?}",
         conn.get_with_argument::<Decorations>(format!("address:{}", current_win.address))
             .await?
-            .decorations
             .iter()
             .map(|deco| deco.decoration_name.as_str())
             .collect::<Vec<&str>>()

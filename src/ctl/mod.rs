@@ -5,6 +5,8 @@ use tokio::{io::Interest, net::UnixStream};
 
 use crate::connection::HyprlandConnection;
 
+pub mod arguments;
+pub mod command;
 pub mod data;
 
 impl HyprlandConnection {

@@ -1,27 +1,30 @@
-use std::{future::Future, sync::Arc};
+use std::ops::Deref;
 
 use hyprrust::connection::HyprlandConnection;
-use tokio::task::JoinHandle;
+use hyprrust::ctl::arguments::*;
+use hyprrust::ctl::command::*;
 
 #[tokio::main]
 async fn main() {
-    let conn = Arc::new(HyprlandConnection::new());
-    let mut num_done = 0;
-    const TOTAL: i32 = 5000;
+    let conn = HyprlandConnection::new();
 
-    let mut handles: Vec<_> = Vec::new();
-    for i in 1..TOTAL {
-        let c = conn.clone();
-        handles.push(
-            tokio::spawn(async move {
-                c.clone().send_raw_message("-j/clients").await;
-            })
-            .await,
-        );
+    // make the current window 400x400, place it in the top right corner and pin it
+    let commands: [Box<dyn DispatchCommand>; 5] = [
+        Box::new(SetFloating::new(WindowArgument::ActiveWindow)),
+        Box::new(ResizeActiveWindow::new(ResizeArgument::Exact(
+            NumPercent::Number(400),
+            NumPercent::Number(400),
+        ))),
+        Box::new(MoveWindow::with_direction(DirectionArgument::Up, true)),
+        Box::new(MoveWindow::with_direction(DirectionArgument::Right, true)),
+        Box::new(PinWindow::new(WindowArgument::ActiveWindow)),
+    ];
+
+    for command in commands {
+        match conn.dispatch(command.deref()).await {
+            Ok(_) => println!("successful"),
+            Err(CommandError::IOError(e)) => println!("io error {}", e),
+            Err(CommandError::HyprlandError(e)) => println!("{}", e),
+        }
     }
-
-    //for handle in handles {
-    //    handle.await;
-    //}
-    println!("done");
 }

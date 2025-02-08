@@ -147,6 +147,9 @@ pub enum HyprlandEvent {
         address: String,
         pin_state: bool,
     },
+    Custome {
+        data: String,
+    },
 }
 
 fn parse_bool(arg: &str) -> bool {
@@ -306,7 +309,9 @@ fn parse_event(msg: &str) -> Result<HyprlandEvent, &'static str> {
             address: argv[0].to_owned(),
             pin_state: parse_bool(argv[1]),
         }),
-        _ => Err("Unknown hyprland event."),
+        _ => Ok(HyprlandEvent::Custome {
+            data: argv.join(","),
+        }),
     }
 }
 

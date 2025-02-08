@@ -1,8 +1,26 @@
+use core::fmt;
 use nix::unistd::getuid;
 use std::env::VarError;
+use std::error::Error;
 use std::fs::read_dir;
 use std::{env, io, path::PathBuf};
 use tokio::task::AbortHandle;
+
+#[derive(Debug)]
+pub struct HyprlandError {
+    message: String,
+}
+impl HyprlandError {
+    pub fn new(message: String) -> Self {
+        HyprlandError { message }
+    }
+}
+impl fmt::Display for HyprlandError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Received error from hyprland: {}", self.message)
+    }
+}
+impl Error for HyprlandError {}
 
 pub struct HyprlandConnection {
     instance: String,

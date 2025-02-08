@@ -3,6 +3,18 @@ use std::collections::HashMap;
 use super::{HyprlandData, HyprlandDataWithArgument};
 use hyprrust_macros::{HyprlandData, HyprlandDataWithArgument};
 use serde::{Deserialize, Serialize};
+use std::ops::Deref;
+
+macro_rules! auto_deref {
+    ($name:ident = $alias:ty) => {
+        impl Deref for $name {
+            type Target = $alias;
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+    };
+}
 
 #[derive(Serialize, Debug)]
 pub struct Sides {
@@ -73,10 +85,8 @@ pub struct Monitor {
 }
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData)]
-#[serde(transparent)]
-pub struct Monitors {
-    pub monitors: Vec<Monitor>,
-}
+pub struct Monitors(Vec<Monitor>);
+auto_deref!(Monitors = Vec<Monitor>);
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData)]
 #[command = "activeworkspace"]
@@ -95,10 +105,8 @@ pub struct Workspace {
 pub type CurrentWorkspace = Workspace;
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData)]
-#[serde(transparent)]
-pub struct Workspaces {
-    pub workspaces: Vec<Workspace>,
-}
+pub struct Workspaces(Vec<Workspace>);
+auto_deref!(Workspaces = Vec<Workspace>);
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -119,10 +127,8 @@ pub struct WorkspaceRule {
 }
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData)]
-#[serde(transparent)]
-pub struct WorkspaceRules {
-    pub workspace_rules: Vec<WorkspaceRule>,
-}
+pub struct WorkspaceRules(Vec<WorkspaceRule>);
+auto_deref!(WorkspaceRules = Vec<WorkspaceRule>);
 
 #[derive(Serialize, Debug)]
 #[serde(untagged)]
@@ -167,10 +173,8 @@ pub struct Window {
 pub type CurrentWindow = Window;
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData)]
-#[serde(transparent)]
-pub struct Clients {
-    pub clients: Vec<Window>,
-}
+pub struct Clients(Vec<Window>);
+auto_deref!(Clients = Vec<Window>);
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -254,10 +258,8 @@ pub struct Decoration {
 }
 
 #[derive(Serialize, Deserialize, Debug, HyprlandDataWithArgument)]
-#[serde(transparent)]
-pub struct Decorations {
-    pub decorations: Vec<Decoration>,
-}
+pub struct Decorations(Vec<Decoration>);
+auto_deref!(Decorations = Vec<Decoration>);
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Bind {
@@ -279,10 +281,8 @@ pub struct Bind {
 }
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData)]
-#[serde(transparent)]
-pub struct Binds {
-    pub binds: Vec<Bind>,
-}
+pub struct Binds(Vec<Bind>);
+auto_deref!(Binds = Vec<Bind>);
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Layer {
@@ -353,10 +353,8 @@ pub enum AnimationsOrBeziers {
 }
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData)]
-#[serde(transparent)]
-pub struct Animations {
-    pub animations: Vec<AnimationsOrBeziers>,
-}
+pub struct Animations(Vec<AnimationsOrBeziers>);
+auto_deref!(Animations = Vec<AnimationsOrBeziers>);
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData)]
 #[serde(transparent)]
