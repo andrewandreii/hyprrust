@@ -7,6 +7,7 @@ use tokio::net::UnixStream;
 use tokio::sync::broadcast;
 use tokio::time;
 
+/// Represents a Hyprland event. The events have the meaning specified here: https://wiki.hyprland.org/IPC/
 #[derive(Clone, Debug)]
 pub enum HyprlandEvent {
     Workspace {
@@ -316,6 +317,7 @@ fn parse_event(msg: &str) -> Result<HyprlandEvent, &'static str> {
 }
 
 impl HyprlandConnection {
+    // Spawns a task that listens to Hyprland events and sends them through an async channel
     pub async fn listen_to_events(
         &mut self,
     ) -> Result<broadcast::Receiver<HyprlandEvent>, io::Error> {
@@ -361,11 +363,20 @@ impl HyprlandConnection {
         Ok(rx)
     }
 
+    /// Returns whether a certain connection is currently listening to events or not
     pub fn is_listening_to_events(&self) -> bool {
         if let Some(handle) = self.event_handle.as_ref() {
             !handle.is_finished()
         } else {
             false
+        }
+    }
+
+    /// Aborts the task that is currently sending events through the broadcast channel. The
+    /// broadcast channel also closes.
+    pub fn stop_listening(&self) {
+        if let Some(handle) = self.event_handle.as_ref() {
+            handle.abort();
         }
     }
 }

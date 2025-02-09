@@ -10,7 +10,7 @@ pub mod command;
 pub mod data;
 
 impl HyprlandConnection {
-    pub fn send_raw_message_sync(&self, msg: &str) -> Result<String, io::Error> {
+    pub(crate) fn send_raw_message_sync(&self, msg: &str) -> Result<String, io::Error> {
         let mut path = self.get_socket_path()?;
         path.push(".socket.sock");
 
@@ -34,7 +34,7 @@ impl HyprlandConnection {
         }
     }
 
-    pub async fn send_raw_message(&self, msg: &str) -> Result<String, io::Error> {
+    pub(crate) async fn send_raw_message(&self, msg: &str) -> Result<String, io::Error> {
         let mut path = self.get_socket_path()?;
         path.push(".socket.sock");
 

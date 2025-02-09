@@ -1,6 +1,6 @@
 use core::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum WindowArgument {
     Class(String),
     InitialClass(String),
@@ -31,7 +31,7 @@ impl ToString for WindowArgument {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum RelAbs {
     Relative(i32),
     Absolute(u32),
@@ -45,7 +45,7 @@ impl ToString for RelAbs {
         }
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum WorkspaceArgument {
     ID(u64),
     RelativeID(i32),
@@ -83,7 +83,7 @@ impl ToString for WorkspaceArgument {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum DirectionArgument {
     Left,
     Right,
@@ -103,7 +103,7 @@ impl ToString for DirectionArgument {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MonitorArgument {
     Direction(DirectionArgument),
     ID(u64),
@@ -125,7 +125,7 @@ impl ToString for MonitorArgument {
 }
 
 // TODO: might need to do extra checks: "exact -50 -50" gets us an "ok" response, but is invalid
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum NumPercent {
     Number(i32),
     Percent(u32),
@@ -138,7 +138,7 @@ impl fmt::Display for NumPercent {
         }
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum ResizeArgument {
     Relative(NumPercent, NumPercent),
     Exact(NumPercent, NumPercent),
@@ -152,7 +152,7 @@ impl ToString for ResizeArgument {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum FloatArgument {
     Relative(f32),
     Exact(f32),
@@ -166,7 +166,7 @@ impl ToString for FloatArgument {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum ZHeightArgument {
     Top,
     Bottom,
@@ -180,7 +180,7 @@ impl ToString for ZHeightArgument {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum ModArgument {
     Shift,
     Caps,
@@ -208,7 +208,7 @@ impl ToString for ModArgument {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum KeyArgument {
     Char(char),
     Code(u32),
