@@ -1,8 +1,8 @@
 use std::ops::Deref;
 
-use hyprrust::connection::HyprlandConnection;
 use hyprrust::ctl::arguments::*;
 use hyprrust::ctl::command::*;
+use hyprrust::HyprlandConnection;
 
 #[tokio::main]
 async fn main() {

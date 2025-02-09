@@ -1,5 +1,5 @@
 #![feature(never_type)]
-use hyprrust::connection::HyprlandConnection;
+use hyprrust::HyprlandConnection;
 
 // A sync version of events is not yet available
 

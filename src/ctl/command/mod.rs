@@ -15,10 +15,12 @@ impl HyprlandConnection {
     ///
     /// # Example
     ///
+    /// ```
     /// use hyprrust::connection::HyprlandConnection;
     /// use hyprrust::ctl::command::*;
     /// let conn = HyprlandConnection::new();
     /// conn.dispatch(MoveWindow::with_direction(DirectionArgument::Left))
+    /// ```
     pub async fn dispatch<T: DispatchCommand + ?Sized>(
         &self,
         command: &T,

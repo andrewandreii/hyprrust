@@ -1,7 +1,7 @@
 use std::io;
 
-use hyprrust::connection::HyprlandConnection;
 use hyprrust::ctl::data::*;
+use hyprrust::HyprlandConnection;
 
 #[tokio::main]
 async fn main() -> Result<(), io::Error> {

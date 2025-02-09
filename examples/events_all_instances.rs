@@ -1,7 +1,7 @@
 /// Listens to all instances of hyprland and reports their events in the console
 use std::io;
 
-use hyprrust::connection::*;
+use hyprrust::*;
 
 #[tokio::main]
 async fn main() {

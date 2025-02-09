@@ -3,7 +3,7 @@ pub use data_models::*;
 mod deserializing;
 
 use crate::connection::HyprlandConnection;
-use deserializing::{HyprlandData, HyprlandDataWithArgument};
+pub use deserializing::{HyprlandData, HyprlandDataWithArgument};
 use serde::de::DeserializeOwned;
 
 use std::io;
@@ -13,10 +13,12 @@ impl HyprlandConnection {
     ///
     /// # Example
     ///
+    /// ```
     /// use hyprrust::connection::HyprlandConnection;
     /// use hyprrust::ctl::data::*;
     /// let conn = HyprlandConnection::new();
     /// let version = conn.get<Version>().await?;
+    /// ```
     pub async fn get<T>(&self) -> Result<T, io::Error>
     where
         T: HyprlandData + DeserializeOwned,
@@ -32,10 +34,12 @@ impl HyprlandConnection {
     ///
     /// # Example
     ///
+    /// ```
     /// use hyprrust::connection::HyprlandConnection;
     /// use hyprrust::ctl::data::*;
     /// let conn = HyprlandConnection::new();
     /// let terminal_decorations = conn.get<Decorations>("class:st".to_string()).await?;
+    /// ```
     pub async fn get_with_argument<T>(&self, arg: String) -> Result<T, io::Error>
     where
         T: HyprlandDataWithArgument + DeserializeOwned,
@@ -46,7 +50,10 @@ impl HyprlandConnection {
         Ok(serde_json::from_str(resp.as_str())?)
     }
 
-    /// The same behaviour as get, but without async. See [`get`]: #method.get
+    /// The same behaviour as get, but without async.
+    /// See [`get`].
+    ///
+    /// [`get`]: #method.get
     pub fn get_sync<T>(&self) -> Result<T, io::Error>
     where
         T: HyprlandData + DeserializeOwned,
@@ -58,7 +65,9 @@ impl HyprlandConnection {
     }
 
     /// The same behaviour as get_with_argument, but without async.
-    /// See [`get_with_argument`]: #method.get_with_argument
+    /// See [`get_with_argument`].
+    ///
+    /// [`get_with_argument`]: #method.get_with_argument
     pub fn get_with_argument_sync<T>(&self, arg: String) -> Result<T, io::Error>
     where
         T: HyprlandDataWithArgument + DeserializeOwned,

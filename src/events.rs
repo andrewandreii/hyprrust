@@ -7,7 +7,7 @@ use tokio::net::UnixStream;
 use tokio::sync::broadcast;
 use tokio::time;
 
-/// Represents a Hyprland event. The events have the meaning specified here: https://wiki.hyprland.org/IPC/
+/// Represents a Hyprland event. The events have the meaning specified here: <https://wiki.hyprland.org/IPC>
 #[derive(Clone, Debug)]
 pub enum HyprlandEvent {
     Workspace {

@@ -1,7 +1,7 @@
 use std::io;
 
-use hyprrust::connection::HyprlandConnection;
 use hyprrust::ctl::data::*;
+use hyprrust::HyprlandConnection;
 
 fn main() -> Result<(), io::Error> {
     let conn = HyprlandConnection::new();
