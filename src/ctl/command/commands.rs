@@ -8,18 +8,25 @@ pub trait DispatchCommand: Command {}
 
 macro_rules! make_command {
     ($name:ident, $strname:expr, $($field:ident: $type:ty),*) => {
+        make_command!($name, $strname, " ", $($field: $type),*);
+    };
+    (with_new, $name:ident, $strname:expr, $($field:ident: $type:ty),*) => {
+        make_command!(with_new, $name, $strname, " ", $($field: $type),*);
+    };
+    ($name:ident, $strname:expr, $sep:expr, $($field:ident: $type:ty),*) => {
         #[derive(Debug)]
         pub struct $name {
             $($field: $type),*
         }
         impl Command for $name {
             fn get_command(&self) -> String {
-                format!(concat!($strname, " {}"), "".to_string() $(+ self.$field.to_string().as_str())*)
+                let args_string = "".to_string() $(+ self.$field.to_string().as_str() + $sep)*;
+                format!(concat!($strname, " {}"), &args_string.as_str()[..args_string.len() - $sep.len()])
             }
         }
     };
-    (with_new, $name:ident, $strname:expr, $($field:ident: $type:ty),*) => {
-        make_command!($name, $strname, $($field: $type),*);
+    (with_new, $name:ident, $strname:expr, $sep:expr, $($field:ident: $type:ty),*) => {
+        make_command!($name, $strname, $sep, $($field: $type),*);
         impl $name {
             pub fn new($($field: $type),*) -> Self {
                 $name {
@@ -37,6 +44,11 @@ macro_rules! make_command {
         }
     };
 }
+macro_rules! make_dispatch {
+    ($name:ident) => {
+        impl DispatchCommand for $name {}
+    };
+}
 
 // NOTE: For information on the commands, please visit the hyprland wiki
 // There are some slight variations, but the naming is approximately the same
@@ -46,45 +58,45 @@ make_command!(with_new, Pass, "pass", to: WindowArgument);
 impl DispatchCommand for Pass {}
 
 make_command!(with_new, SendShortcut, "sendshortcut", modifier: ModArgument, key: KeyArgument, window: WindowArgument);
-impl DispatchCommand for SendShortcut {}
+make_dispatch!(SendShortcut);
 
 make_command!(KillActive, "killactive");
-impl DispatchCommand for KillActive {}
+make_dispatch!(KillActive);
 
 make_command!(ForceKillActive, "forcekillactive");
-impl DispatchCommand for ForceKillActive {}
+make_dispatch!(ForceKillActive);
 
 make_command!(with_new, CloseWindow, "closewindow", which: WindowArgument);
-impl DispatchCommand for CloseWindow {}
+make_dispatch!(CloseWindow);
 
 make_command!(with_new, KillWindow, "killwindow", which: WindowArgument);
-impl DispatchCommand for KillWindow {}
+make_dispatch!(KillWindow);
 
 // TODO: implement signal
 
 make_command!(with_new, GoToWorkSpace, "workspace", to: WorkspaceArgument);
-impl DispatchCommand for GoToWorkSpace {}
+make_dispatch!(GoToWorkSpace);
 
 make_command!(with_new, MoveToWorkspace, "movetoworkspace", to: WorkspaceArgument, which: WindowArgument);
-impl DispatchCommand for MoveToWorkspace {}
+make_dispatch!(MoveToWorkspace);
 
 make_command!(with_new, MoveToWorkspaceSilent, "movetoworkspacesilent", to: WorkspaceArgument, which: WindowArgument);
-impl DispatchCommand for MoveToWorkspaceSilent {}
+make_dispatch!(MoveToWorkspaceSilent);
 
 make_command!(with_new, ToggleFloating, "togglefloating", which: WindowArgument);
-impl DispatchCommand for ToggleFloating {}
+make_dispatch!(ToggleFloating);
 
 make_command!(with_new, SetFloating, "setfloating", which: WindowArgument);
-impl DispatchCommand for SetFloating {}
+make_dispatch!(SetFloating);
 
 make_command!(with_new, SetTiled, "settiled", which: WindowArgument);
-impl DispatchCommand for SetTiled {}
+make_dispatch!(SetTiled);
 
 make_command!(Fullscreen, "fullscreen 0");
-impl DispatchCommand for Fullscreen {}
+make_dispatch!(Fullscreen);
 
 make_command!(FullscreenMaximize, "fullscreen 1");
-impl DispatchCommand for FullscreenMaximize {}
+make_dispatch!(FullscreenMaximize);
 
 // TODO: should be newtype?
 impl ToString for FullscreenState {
@@ -98,16 +110,16 @@ impl ToString for FullscreenState {
         .to_string()
     }
 }
-make_command!(SetFullscreenState, "fullscreenstate", internal: FullscreenState, client: FullscreenState);
-impl DispatchCommand for SetFullscreenState {}
+make_command!(with_new, SetFullscreenState, "fullscreenstate", internal: FullscreenState, client: FullscreenState);
+make_dispatch!(SetFullscreenState);
 
 // TODO: implement dpms
 
 make_command!(with_new, PinWindow, "pin", which: WindowArgument);
-impl DispatchCommand for PinWindow {}
+make_dispatch!(PinWindow);
 
 make_command!(with_new, MoveFocus, "movefocus", to: DirectionArgument);
-impl DispatchCommand for MoveFocus {}
+make_dispatch!(MoveFocus);
 
 #[derive(Debug)]
 pub enum Either<T, U> {
@@ -120,7 +132,7 @@ pub struct MoveWindow {
     what: Either<DirectionArgument, MonitorArgument>,
     silent: bool,
 }
-impl DispatchCommand for MoveWindow {}
+make_dispatch!(MoveWindow);
 impl MoveWindow {
     pub fn with_direction(direction: DirectionArgument, silent: bool) -> Self {
         MoveWindow {
@@ -146,5 +158,41 @@ impl Command for MoveWindow {
     }
 }
 
+make_command!(with_new, SwapWindow, "swapwindow", to: DirectionArgument);
+make_dispatch!(SwapWindow);
+
+make_command!(with_new, CenterWindow, "centerwindow", with_exclude: BoolArgument);
+make_dispatch!(CenterWindow);
+
 make_command!(with_new, ResizeActiveWindow, "resizeactive", to: ResizeArgument);
-impl DispatchCommand for ResizeActiveWindow {}
+make_dispatch!(ResizeActiveWindow);
+
+make_command!(with_new, MoveActiveWindow, "moveactive", to: ResizeArgument);
+make_dispatch!(MoveActiveWindow);
+
+make_command!(with_new, ResizeWindow, "resizewindowpixel", ",", to: ResizeArgument, which: WindowArgument);
+make_dispatch!(ResizeWindow);
+
+make_command!(with_new, MoveWindowBy, "movewindowpixel", by: ResizeArgument, which: WindowArgument);
+make_dispatch!(MoveWindowBy);
+
+make_command!(with_new, CycleNext, "cyclenext", options: CycleNextArguments);
+make_dispatch!(CycleNext);
+
+make_command!(SwapWithNext, "swapnext");
+make_dispatch!(SwapWithNext);
+
+make_command!(SwapWithPrev, "swapnext prev");
+make_dispatch!(SwapWithPrev);
+
+make_command!(with_new, TagWindow, "tagwindow", tag: TagArgument, which: WindowArgument);
+make_dispatch!(TagWindow);
+
+make_command!(with_new, FocusWindow, "focuswindow", which: WindowArgument);
+make_dispatch!(FocusWindow);
+
+make_command!(with_new, FocusMonitor, "focusmonitor", which: MonitorArgument);
+make_dispatch!(FocusMonitor);
+
+make_command!(with_new, SetSplitRatio, "splitratio", split: FloatArgument);
+make_dispatch!(SetSplitRatio);
