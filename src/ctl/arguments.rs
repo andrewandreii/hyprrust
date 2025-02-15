@@ -1,4 +1,5 @@
 use core::fmt;
+use std::ops::Deref;
 
 #[derive(Debug, Clone)]
 pub enum WindowArgument {
@@ -138,6 +139,11 @@ impl fmt::Display for NumPercent {
         }
     }
 }
+impl From<i32> for NumPercent {
+    fn from(value: i32) -> Self {
+        NumPercent::Number(value)
+    }
+}
 #[derive(Debug, Clone, Copy)]
 pub enum ResizeArgument {
     Relative(NumPercent, NumPercent),
@@ -163,6 +169,12 @@ impl ToString for FloatArgument {
             Self::Relative(float) => float.to_string(),
             Self::Exact(float) => format!("exact {}", float),
         }
+    }
+}
+impl From<f32> for FloatArgument {
+    /// Assumes you want FloatArgument::Exact
+    fn from(value: f32) -> Self {
+        FloatArgument::Exact(value)
     }
 }
 
@@ -220,6 +232,89 @@ impl ToString for KeyArgument {
             KeyArgument::Char(c) => c.to_string(),
             KeyArgument::Code(code) => format!("code:{}", code),
             KeyArgument::Mouse(code) => format!("mouse:{}", code),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct BoolArgument(bool);
+impl ToString for BoolArgument {
+    fn to_string(&self) -> String {
+        match self.0 {
+            true => "1".to_string(),
+            false => "0".to_string(),
+        }
+    }
+}
+impl From<bool> for BoolArgument {
+    fn from(value: bool) -> Self {
+        BoolArgument(value)
+    }
+}
+
+/// Arguments to supply to the CycleNext command.
+///
+/// # Panics
+///
+/// While Hyprland doesn't theoretically error when both "floating" and "tiled" are supplied, we
+/// shouldn't allow it as it doesn't make sense.
+#[derive(Debug, Clone, Copy)]
+pub struct CycleNextArguments {
+    use_focus_history: bool,
+    visible: bool,
+    floating: bool,
+    tiled: bool,
+}
+impl CycleNextArguments {
+    pub fn new(tiled: bool, floating: bool, visible: bool, use_focus_history: bool) -> Self {
+        CycleNextArguments {
+            tiled,
+            floating,
+            visible,
+            use_focus_history,
+        }
+    }
+
+    pub fn with_all_off() -> Self {
+        Self::new(false, false, false, false)
+    }
+}
+fn str_if(cond: bool, s: &str) -> &str {
+    if cond {
+        s
+    } else {
+        ""
+    }
+}
+impl Default for CycleNextArguments {
+    fn default() -> Self {
+        Self::with_all_off()
+    }
+}
+impl ToString for CycleNextArguments {
+    fn to_string(&self) -> String {
+        format!(
+            "{} {} {} {}",
+            str_if(self.visible, "visible"),
+            str_if(self.floating, "floating"),
+            str_if(self.tiled, "tiled"),
+            str_if(self.use_focus_history, "hist")
+        )
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum TagArgument {
+    Set(String),
+    Unset(String),
+    Toggle(String),
+}
+impl ToString for TagArgument {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Set(tag) => format!("+{}", tag),
+            Self::Unset(tag) => format!("-{}", tag),
+            Self::Toggle(tag) => tag.clone(),
         }
     }
 }
