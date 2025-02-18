@@ -8,6 +8,7 @@ pub use commands::*;
 pub enum CommandError {
     HyprlandError(HyprlandError),
     IOError(io::Error),
+    LibraryError(String),
 }
 
 impl HyprlandConnection {
@@ -21,12 +22,14 @@ impl HyprlandConnection {
     /// let conn = HyprlandConnection::new();
     /// conn.dispatch(MoveWindow::with_direction(DirectionArgument::Left))
     /// ```
-    pub async fn dispatch<T: DispatchCommand + ?Sized>(
-        &self,
-        command: &T,
-    ) -> Result<(), CommandError> {
+    pub async fn send_command<T: Command + ?Sized>(&self, command: &T) -> Result<(), CommandError> {
+        let prefix = match command.get_type() {
+            CommandType::DispatchCommand => "dispatch ",
+            CommandType::DirectCommand => "",
+        };
+
         match self
-            .send_raw_message(format!("dispatch {}", command.get_command()).as_str())
+            .send_raw_message(format!("{}{}", prefix, command.get_command()).as_str())
             .await
         {
             Ok(s) if s.starts_with("ok") => Ok(()),
