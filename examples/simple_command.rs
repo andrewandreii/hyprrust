@@ -1,31 +1,16 @@
-use std::ops::Deref;
+use std::error::Error;
 
-use hyprrust::ctl::arguments::*;
 use hyprrust::ctl::command::*;
 use hyprrust::HyprlandConnection;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn Error>> {
     let conn = HyprlandConnection::new();
 
-    // make the current window 400x400, place it in the top right corner and pin it
-    let commands: [Box<dyn Command>; 5] = [
-        Box::new(SetFloating::new(WindowArgument::ActiveWindow)),
-        Box::new(ResizeActiveWindow::new(ResizeArgument::Exact(
-            NumPercent::Number(400),
-            NumPercent::Number(400),
-        ))),
-        Box::new(MoveWindow::with_direction(DirectionArgument::Up, true)),
-        Box::new(MoveWindow::with_direction(DirectionArgument::Right, true)),
-        Box::new(PinWindow::new(WindowArgument::ActiveWindow)),
-    ];
+    let command = SetFloating::new(WindowArgument::Tiled);
 
-    for command in commands {
-        match conn.send_command(command.deref()).await {
-            Ok(_) => println!("successful"),
-            Err(CommandError::IOError(e)) => println!("io error {}", e),
-            Err(CommandError::HyprlandError(e)) => println!("Hyprland error: {}", e),
-            Err(CommandError::LibraryError(e)) => println!("Library error: {}", e),
-        }
-    }
+    conn.send_command(&command).await?;
+    println!("sucessful");
+
+    Ok(())
 }

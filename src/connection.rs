@@ -7,7 +7,7 @@ use std::{env, io, path::PathBuf};
 use tokio::task::AbortHandle;
 
 /// Used when Hyprland sends an error over a socket
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HyprlandError {
     message: String,
 }
