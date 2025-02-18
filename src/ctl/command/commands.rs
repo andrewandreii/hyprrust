@@ -173,7 +173,7 @@ make_dispatch!(MoveActiveWindow);
 make_command!(with_new, ResizeWindow, "resizewindowpixel", ",", to: ResizeArgument, which: WindowArgument);
 make_dispatch!(ResizeWindow);
 
-make_command!(with_new, MoveWindowBy, "movewindowpixel", by: ResizeArgument, which: WindowArgument);
+make_command!(with_new, MoveWindowBy, "movewindowpixel", ",", by: ResizeArgument, which: WindowArgument);
 make_dispatch!(MoveWindowBy);
 
 make_command!(with_new, CycleNext, "cyclenext", options: CycleNextArguments);
@@ -196,3 +196,18 @@ make_dispatch!(FocusMonitor);
 
 make_command!(with_new, SetSplitRatio, "splitratio", split: FloatArgument);
 make_dispatch!(SetSplitRatio);
+
+make_command!(with_new, MoveCursorToCorner, "movecursortocorner", which: CornerArgument);
+make_dispatch!(MoveCursorToCorner);
+
+make_command!(with_new, MoveCursor, "movecursor", x: IntArgument, y: IntArgument);
+make_dispatch!(MoveCursor);
+
+make_command!(with_new, RenameWorkspace, "renameworkspace", which_id: StringArgument, new_name: StringArgument);
+make_dispatch!(RenameWorkspace);
+
+make_command!(with_new, ExitHyprland, "exit",);
+make_dispatch!(ExitHyprland);
+
+make_command!(with_new, ForceRenderReload, "forcerenderreload",);
+make_dispatch!(ForceRenderReload);

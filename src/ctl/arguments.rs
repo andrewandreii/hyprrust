@@ -318,3 +318,52 @@ impl ToString for TagArgument {
         }
     }
 }
+
+#[derive(Debug, Clone, Copy)]
+pub enum CornerArgument {
+    BottomLeft = 0,
+    BottomRight = 1,
+    TopRight = 2,
+    TopLeft = 3,
+}
+impl ToString for CornerArgument {
+    fn to_string(&self) -> String {
+        (*self as i32).to_string()
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct IntArgument(i32);
+impl ToString for IntArgument {
+    fn to_string(&self) -> String {
+        self.0.to_string()
+    }
+}
+impl From<i32> for IntArgument {
+    fn from(value: i32) -> Self {
+        IntArgument(value)
+    }
+}
+impl Into<i32> for IntArgument {
+    fn into(self) -> i32 {
+        self.0
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct StringArgument(String);
+impl ToString for StringArgument {
+    fn to_string(&self) -> String {
+        self.0.clone()
+    }
+}
+impl From<String> for StringArgument {
+    fn from(value: String) -> Self {
+        StringArgument(value)
+    }
+}
+impl Into<String> for StringArgument {
+    fn into(self) -> String {
+        self.0
+    }
+}
