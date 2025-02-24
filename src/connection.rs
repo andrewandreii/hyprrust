@@ -4,7 +4,10 @@ use std::env::VarError;
 use std::error::Error;
 use std::fs::read_dir;
 use std::{env, io, path::PathBuf};
+use tokio::sync::broadcast;
 use tokio::task::AbortHandle;
+
+use crate::events::HyprlandEvent;
 
 /// Used when Hyprland sends an error over a socket
 #[derive(Debug, Clone)]
@@ -23,12 +26,18 @@ impl fmt::Display for HyprlandError {
 }
 impl Error for HyprlandError {}
 
+#[derive(Debug)]
+pub(crate) struct EventConnection {
+    pub abort_handle: AbortHandle,
+    pub receiver: broadcast::Receiver<HyprlandEvent>,
+}
+
 /// Represents a connection to Hyprland, it can be used to start an event listener or to send
 /// commands to Hyprland
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct HyprlandConnection {
     instance: String,
-    pub(crate) event_handle: Option<AbortHandle>,
+    pub(crate) event_connection: Option<EventConnection>,
 }
 
 impl HyprlandConnection {
@@ -49,7 +58,7 @@ impl HyprlandConnection {
     pub fn new_with_instance(instance: String) -> HyprlandConnection {
         HyprlandConnection {
             instance,
-            event_handle: None,
+            event_connection: None,
         }
     }
 
