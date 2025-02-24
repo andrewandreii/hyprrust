@@ -45,7 +45,7 @@ impl HyprlandConnection {
         )
     }
 
-    /// Creates a new instance with the specified instance
+    /// Creates a new instance with the specified instance. Does not check if instance is valid
     pub fn new_with_instance(instance: String) -> HyprlandConnection {
         HyprlandConnection {
             instance,

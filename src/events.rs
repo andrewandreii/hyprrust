@@ -363,7 +363,7 @@ impl HyprlandConnection {
         Ok(rx)
     }
 
-    /// Returns whether a certain connection is currently listening to events or not
+    /// Returns whether this connection is currently listening to events or not
     pub fn is_listening_to_events(&self) -> bool {
         if let Some(handle) = self.event_handle.as_ref() {
             !handle.is_finished()

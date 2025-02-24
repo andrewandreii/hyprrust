@@ -10,6 +10,9 @@ pub mod command;
 pub mod data;
 
 impl HyprlandConnection {
+    /// Works the same as [`send_raw_message`].
+    ///
+    /// [`send_raw_message`]: #method.send_raw_message
     pub fn send_raw_message_sync(&self, msg: &str) -> Result<String, io::Error> {
         let mut path = self.get_socket_path()?;
         path.push(".socket.sock");
@@ -34,6 +37,7 @@ impl HyprlandConnection {
         }
     }
 
+    /// Sends a string to the hyprland socket not checking anything besides io errors.
     pub async fn send_raw_message(&self, msg: &str) -> Result<String, io::Error> {
         let mut path = self.get_socket_path()?;
         path.push(".socket.sock");
