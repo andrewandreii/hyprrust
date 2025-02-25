@@ -6,7 +6,7 @@ pub mod events;
 pub use connection::HyprlandConnection;
 
 pub mod commands {
-    pub use crate::ctl::command::*;
+    pub use crate::ctl::commands::*;
 
     pub mod prelude {
         pub use super::*;
