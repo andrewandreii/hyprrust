@@ -1,4 +1,7 @@
 use core::fmt;
+use std::ops::Deref;
+
+use super::data::{Monitor, Window, Workspace, WorkspaceBrief};
 
 #[derive(Debug, Clone)]
 pub enum WindowArgument {
@@ -13,6 +16,7 @@ pub enum WindowArgument {
     Floating,
     Tiled,
 }
+
 impl ToString for WindowArgument {
     fn to_string(&self) -> String {
         use WindowArgument::*;
@@ -31,11 +35,18 @@ impl ToString for WindowArgument {
     }
 }
 
+impl From<Window> for WindowArgument {
+    fn from(value: Window) -> Self {
+        WindowArgument::Address(value.address)
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum RelAbs {
     Relative(i32),
     Absolute(u32),
 }
+
 impl ToString for RelAbs {
     fn to_string(&self) -> String {
         match self {
@@ -45,9 +56,10 @@ impl ToString for RelAbs {
         }
     }
 }
+
 #[derive(Debug, Clone)]
 pub enum WorkspaceArgument {
-    ID(u64),
+    ID(i64),
     RelativeID(i32),
     WorkspaceOnMonitor(RelAbs),
     WorkspaceOnMonitorWithEmpty(RelAbs),
@@ -61,6 +73,7 @@ pub enum WorkspaceArgument {
     EmptyNextOnMonitor,
     Special(Option<String>),
 }
+
 impl ToString for WorkspaceArgument {
     fn to_string(&self) -> String {
         use WorkspaceArgument::*;
@@ -83,6 +96,18 @@ impl ToString for WorkspaceArgument {
     }
 }
 
+impl From<Workspace> for WorkspaceArgument {
+    fn from(value: Workspace) -> Self {
+        WorkspaceArgument::ID(value.id)
+    }
+}
+
+impl From<WorkspaceBrief> for WorkspaceArgument {
+    fn from(value: WorkspaceBrief) -> Self {
+        WorkspaceArgument::ID(value.id)
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum DirectionArgument {
     Left,
@@ -90,6 +115,7 @@ pub enum DirectionArgument {
     Up,
     Down,
 }
+
 impl ToString for DirectionArgument {
     fn to_string(&self) -> String {
         use DirectionArgument::*;
@@ -106,11 +132,12 @@ impl ToString for DirectionArgument {
 #[derive(Debug, Clone)]
 pub enum MonitorArgument {
     Direction(DirectionArgument),
-    ID(u64),
+    ID(i64),
     Name(String),
     Current,
     Relative(i32),
 }
+
 impl ToString for MonitorArgument {
     fn to_string(&self) -> String {
         use MonitorArgument::*;
@@ -124,12 +151,19 @@ impl ToString for MonitorArgument {
     }
 }
 
+impl From<Monitor> for MonitorArgument {
+    fn from(value: Monitor) -> Self {
+        MonitorArgument::ID(value.id)
+    }
+}
+
 // TODO: might need to do extra checks: "exact -50 -50" gets us an "ok" response, but is invalid
 #[derive(Debug, Clone, Copy)]
 pub enum NumPercent {
     Number(i32),
     Percent(u32),
 }
+
 impl fmt::Display for NumPercent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -138,16 +172,19 @@ impl fmt::Display for NumPercent {
         }
     }
 }
+
 impl From<i32> for NumPercent {
     fn from(value: i32) -> Self {
         NumPercent::Number(value)
     }
 }
+
 #[derive(Debug, Clone, Copy)]
 pub enum ResizeArgument {
     Relative(NumPercent, NumPercent),
     Exact(NumPercent, NumPercent),
 }
+
 impl ToString for ResizeArgument {
     fn to_string(&self) -> String {
         match self {
@@ -162,6 +199,7 @@ pub enum FloatArgument {
     Relative(f32),
     Exact(f32),
 }
+
 impl ToString for FloatArgument {
     fn to_string(&self) -> String {
         match self {
@@ -170,6 +208,7 @@ impl ToString for FloatArgument {
         }
     }
 }
+
 impl From<f32> for FloatArgument {
     /// Assumes you want FloatArgument::Exact
     fn from(value: f32) -> Self {
@@ -182,6 +221,7 @@ pub enum ZHeightArgument {
     Top,
     Bottom,
 }
+
 impl ToString for ZHeightArgument {
     fn to_string(&self) -> String {
         match self {
@@ -202,6 +242,7 @@ pub enum ModArgument {
     Super,
     Mod5,
 }
+
 impl ToString for ModArgument {
     fn to_string(&self) -> String {
         use ModArgument::*;
@@ -225,6 +266,7 @@ pub enum KeyArgument {
     Code(u32),
     Mouse(u32),
 }
+
 impl ToString for KeyArgument {
     fn to_string(&self) -> String {
         match self {
@@ -245,9 +287,18 @@ impl ToString for BoolArgument {
         }
     }
 }
+
 impl From<bool> for BoolArgument {
     fn from(value: bool) -> Self {
         BoolArgument(value)
+    }
+}
+
+impl Deref for BoolArgument {
+    type Target = bool;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -264,6 +315,7 @@ pub struct CycleNextArguments {
     floating: bool,
     tiled: bool,
 }
+
 impl CycleNextArguments {
     pub fn new(tiled: bool, floating: bool, visible: bool, use_focus_history: bool) -> Self {
         CycleNextArguments {
@@ -278,6 +330,7 @@ impl CycleNextArguments {
         Self::new(false, false, false, false)
     }
 }
+
 fn str_if(cond: bool, s: &str) -> &str {
     if cond {
         s
@@ -285,11 +338,13 @@ fn str_if(cond: bool, s: &str) -> &str {
         ""
     }
 }
+
 impl Default for CycleNextArguments {
     fn default() -> Self {
         Self::with_all_off()
     }
 }
+
 impl ToString for CycleNextArguments {
     fn to_string(&self) -> String {
         format!(
@@ -308,6 +363,7 @@ pub enum TagArgument {
     Unset(String),
     Toggle(String),
 }
+
 impl ToString for TagArgument {
     fn to_string(&self) -> String {
         match self {
@@ -325,6 +381,7 @@ pub enum CornerArgument {
     TopRight = 2,
     TopLeft = 3,
 }
+
 impl ToString for CornerArgument {
     fn to_string(&self) -> String {
         (*self as i32).to_string()
@@ -338,14 +395,24 @@ impl ToString for IntArgument {
         self.0.to_string()
     }
 }
+
 impl From<i32> for IntArgument {
     fn from(value: i32) -> Self {
         IntArgument(value)
     }
 }
+
 impl Into<i32> for IntArgument {
     fn into(self) -> i32 {
         self.0
+    }
+}
+
+impl Deref for IntArgument {
+    type Target = i32;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -356,13 +423,17 @@ impl ToString for StringArgument {
         self.0.clone()
     }
 }
+
 impl From<String> for StringArgument {
     fn from(value: String) -> Self {
         StringArgument(value)
     }
 }
-impl Into<String> for StringArgument {
-    fn into(self) -> String {
-        self.0
+
+impl Deref for StringArgument {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

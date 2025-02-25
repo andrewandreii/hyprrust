@@ -173,8 +173,9 @@ pub struct Window {
 pub type CurrentWindow = Window;
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData)]
-pub struct Clients(Vec<Window>);
-auto_deref!(Clients = Vec<Window>);
+#[command = "clients"]
+pub struct Windows(Vec<Window>);
+auto_deref!(Windows = Vec<Window>);
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
