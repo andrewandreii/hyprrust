@@ -7,7 +7,7 @@ use std::{env, io, path::PathBuf};
 use tokio::sync::broadcast;
 use tokio::task::AbortHandle;
 
-use crate::events::HyprlandEvent;
+use crate::all_events::HyprlandEvent;
 
 /// Used when Hyprland sends an error over a socket
 #[derive(Debug, Clone)]

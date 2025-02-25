@@ -1,5 +1,4 @@
 use core::fmt;
-use std::ops::Deref;
 
 #[derive(Debug, Clone)]
 pub enum WindowArgument {

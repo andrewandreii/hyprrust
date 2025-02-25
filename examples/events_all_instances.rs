@@ -16,7 +16,7 @@ async fn main() {
     let mut conn_num = 0;
     for mut conn in connections {
         // Start listener tasks for each connection
-        let mut rx = conn.listen_to_events().await.unwrap();
+        let mut rx = conn.listen_to_events(None).await.unwrap();
 
         // Listen to events in another task
         tokio::spawn(async move {

@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use hyprrust::ctl::command::*;
 use hyprrust::HyprlandConnection;
 

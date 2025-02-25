@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::io;
 use std::str;
 
@@ -8,150 +9,90 @@ use tokio::net::UnixStream;
 use tokio::sync::broadcast;
 use tokio::time;
 
-/// Represents a Hyprland event. The events have the meaning specified here: <https://wiki.hyprland.org/IPC>
-#[derive(Clone, Debug)]
-pub enum HyprlandEvent {
-    Workspace {
-        name: String,
-    },
-    WorkspaceV2 {
-        id: i64,
-        name: String,
-    },
-    FocusedMonitor {
-        name: String,
-        workspace_name: String,
-    },
-    FocusedMonitorV2 {
-        name: String,
-        workspace_id: i64,
-    },
-    ActiveWindow {
-        class: String,
-        title: String,
-    },
-    ActiveWindowV2 {
-        address: String,
-    },
-    Fullscreen {
-        is_fullscreen: bool,
-    },
-    MonitorRemoved {
-        name: String,
-    },
-    MonitorAdded {
-        name: String,
-    },
-    MonitorAddedV2 {
-        id: i64,
-        name: String,
-        description: String,
-    },
-    CreateWorkspace {
-        name: String,
-    },
-    CreateWorkspaceV2 {
-        id: i64,
-        name: String,
-    },
-    DestroyWorkspace {
-        name: String,
-    },
-    DestroyWorkspaceV2 {
-        id: i64,
-        name: String,
-    },
-    MoveWorkspace {
-        name: String,
-        mon_name: String,
-    },
-    MoveWorkspaceV2 {
-        id: i64,
-        name: String,
-        mon_name: String,
-    },
-    RenameWorkspace {
-        id: i64,
-        name: String,
-    },
-    ActiveSpecial {
-        name: String,
-        mon_name: String,
-    },
-    ActiveLayout {
-        keyboard_name: String,
-        layout_name: String,
-    },
-    OpenWindow {
-        address: String,
-        workspace_name: String,
-        class: String,
-        title: String,
-    },
-    CloseWindow {
-        address: String,
-    },
-    MoveWindow {
-        address: String,
-        workspace_name: String,
-    },
-    MoveWindowV2 {
-        address: String,
-        workspace_id: i64,
-        workspace_name: String,
-    },
-    OpenLayer {
-        namespace: String,
-    },
-    CloseLayer {
-        namespace: String,
-    },
-    Submap {
-        name: String,
-    },
-    ChangeFloatingMode {
-        window_address: String,
-        floating: bool,
-    },
-    Urgent {
-        window_address: String,
-    },
-    // TODO: test if struct is correct
-    Screencast {
-        state: bool,
-        owner: String,
-    },
-    WindowTitle {
-        address: String,
-    },
-    WindowTitleV2 {
-        address: String,
-        title: String,
-    },
-    ToggleGroup {
-        state: bool,
-        handles: Vec<String>,
-    },
-    MoveIntoGroup {
-        address: String,
-    },
-    MoveOutOfGroup {
-        address: String,
-    },
-    IgnoreGroupLock {
-        is_on: bool,
-    },
-    LockGroups {
-        is_on: bool,
-    },
-    ConfigReloaded,
-    Pin {
-        address: String,
-        pin_state: bool,
-    },
-    Custome {
-        data: String,
-    },
+pub use crate::all_events::HyprlandEvent;
+
+#[macro_export]
+macro_rules! event_name {
+    (HyprlandEvent::$variant:ident) => {
+        stringify!($variant).to_ascii_lowercase()
+    };
+    ($variant:ident) => {
+        stringify!($variant).to_ascii_lowercase()
+    };
+}
+pub use event_name;
+
+#[derive(Debug, Clone)]
+pub struct EventFilter {
+    filter_set: HashSet<String>,
+    include: bool,
+}
+impl EventFilter {
+    pub fn all_events() -> Self {
+        EventFilter {
+            filter_set: HashSet::new(),
+            include: false,
+        }
+    }
+
+    pub fn new_include_all() -> Self {
+        Self::all_events()
+    }
+
+    pub fn new(include: bool) -> Self {
+        EventFilter {
+            filter_set: HashSet::new(),
+            include,
+        }
+    }
+
+    pub fn set_include(&mut self, include: bool) {
+        self.include = include;
+    }
+
+    pub fn add_event(&mut self, ev_name: String) {
+        self.filter_set.insert(ev_name);
+    }
+
+    pub fn includes(&self, ev_name: &str) -> bool {
+        !(self.filter_set.contains(ev_name) ^ self.include)
+    }
+}
+
+impl Default for EventFilter {
+    fn default() -> Self {
+        Self::new(true)
+    }
+}
+
+impl FromIterator<String> for EventFilter {
+    fn from_iter<T: IntoIterator<Item = String>>(iter: T) -> Self {
+        let mut filter = Self::default();
+        for ev_name in iter {
+            filter.add_event(ev_name);
+        }
+        filter
+    }
+}
+
+impl<'iter> FromIterator<&'iter String> for EventFilter {
+    fn from_iter<T: IntoIterator<Item = &'iter String>>(iter: T) -> Self {
+        let mut filter = Self::default();
+        for ev_name in iter {
+            filter.add_event(ev_name.clone());
+        }
+        filter
+    }
+}
+
+impl<'iter> FromIterator<&'iter str> for EventFilter {
+    fn from_iter<T: IntoIterator<Item = &'iter str>>(iter: T) -> Self {
+        let mut filter = Self::default();
+        for ev_name in iter {
+            filter.add_event(ev_name.to_string());
+        }
+        filter
+    }
 }
 
 fn parse_bool(arg: &str) -> bool {
@@ -163,7 +104,7 @@ fn parse_int(arg: &str) -> i64 {
 }
 
 // TODO: make a way to exclude certain events if we didn't subsribe to them
-fn parse_event(msg: &str) -> Result<HyprlandEvent, &'static str> {
+fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEvent, &'static str> {
     let ev_name: &str;
     let argv: Vec<&str>;
 
@@ -172,6 +113,10 @@ fn parse_event(msg: &str) -> Result<HyprlandEvent, &'static str> {
         argv = left.split(',').collect();
     } else {
         return Err("Malformed event");
+    }
+
+    if !filter.includes(ev_name) {
+        return Err("Filtered out");
     }
 
     match ev_name {
@@ -329,6 +274,7 @@ impl HyprlandConnection {
     // [`stop_listening`]: #method.stop_listening
     pub async fn listen_to_events(
         &mut self,
+        filter: Option<EventFilter>,
     ) -> Result<broadcast::Receiver<HyprlandEvent>, io::Error> {
         if let Some(event_connection) = self.event_connection.as_ref() {
             return Ok(event_connection.receiver.resubscribe());
@@ -339,6 +285,8 @@ impl HyprlandConnection {
         let socket = UnixStream::connect(path).await?;
 
         let (tx, rx) = broadcast::channel(16);
+
+        let filter = filter.unwrap_or_else(|| EventFilter::default());
 
         let abort_handle = tokio::spawn(async move {
             'main_loop: loop {
@@ -352,7 +300,7 @@ impl HyprlandConnection {
                             .strip_suffix('\n')
                             .unwrap();
                         for line in str_buf.split('\n') {
-                            if let Ok(event) = parse_event(line) {
+                            if let Ok(event) = parse_event(line, &filter) {
                                 if let Err(_) = tx.send(event) {
                                     break 'main_loop;
                                 }

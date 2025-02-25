@@ -18,10 +18,10 @@ fn simple_listener(
 async fn main() {
     let mut conn = HyprlandConnection::new();
 
-    let rx = conn.listen_to_events().await.unwrap();
+    let rx = conn.listen_to_events(None).await.unwrap();
     let task1 = tokio::spawn(simple_listener(1, rx));
 
-    let rx = conn.listen_to_events().await.unwrap();
+    let rx = conn.listen_to_events(None).await.unwrap();
     let task2 = tokio::spawn(simple_listener(2, rx));
 
     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
@@ -30,7 +30,7 @@ async fn main() {
     task2.abort();
     // Connection remains open.
 
-    let rx = conn.listen_to_events().await.unwrap();
+    let rx = conn.listen_to_events(None).await.unwrap();
     tokio::spawn(simple_listener(3, rx));
 
     pending::<()>().await;

@@ -1,3 +1,4 @@
+mod all_events;
 mod connection;
 pub mod ctl;
 pub mod events;
