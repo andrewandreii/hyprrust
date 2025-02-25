@@ -1,4 +1,3 @@
-mod all_events;
 mod connection;
 mod ctl;
 pub mod errors;

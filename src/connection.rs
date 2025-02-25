@@ -5,7 +5,7 @@ use std::{env, io, path::PathBuf};
 use tokio::sync::broadcast;
 use tokio::task::AbortHandle;
 
-use crate::all_events::HyprlandEvent;
+use crate::events::HyprlandEvent;
 
 #[derive(Debug)]
 pub(crate) struct EventConnection {

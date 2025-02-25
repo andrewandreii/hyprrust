@@ -94,7 +94,7 @@ mod data_tests {
         assert!(conn.get_sync::<Workspaces>().is_ok());
         assert!(conn.get_sync::<WorkspaceRules>().is_ok());
         assert!(conn.get_sync::<Window>().is_ok());
-        assert!(conn.get_sync::<Clients>().is_ok());
+        assert!(conn.get_sync::<Windows>().is_ok());
         assert!(conn.get_sync::<Devices>().is_ok());
         assert!(conn
             .get_with_argument_sync::<Decorations>("class:st".to_owned())

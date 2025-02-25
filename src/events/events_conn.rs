@@ -9,7 +9,7 @@ use tokio::net::UnixStream;
 use tokio::sync::broadcast;
 use tokio::time;
 
-pub use crate::all_events::HyprlandEvent;
+pub use super::HyprlandEvent;
 
 #[macro_export]
 macro_rules! event_name {
