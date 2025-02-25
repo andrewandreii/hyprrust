@@ -1,22 +1,24 @@
 mod all_events;
 mod connection;
-pub mod ctl;
+mod ctl;
+pub mod errors;
 pub mod events;
 
-pub use connection::{HyprlandConnection, HyprlandError};
+pub use connection::HyprlandConnection;
 
-use core::fmt;
-use std::error::Error;
+pub mod commands {
+    pub use crate::ctl::command::*;
 
-#[derive(Debug)]
-pub struct LibraryError {
-    message: String,
-}
-
-impl fmt::Display for LibraryError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
+    pub mod prelude {
+        pub use super::*;
+        pub use crate::arguments::*;
     }
 }
 
-impl Error for LibraryError {}
+pub mod data {
+    pub use crate::ctl::data::*;
+}
+
+pub mod arguments {
+    pub use crate::ctl::arguments::*;
+}

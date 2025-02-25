@@ -1,4 +1,4 @@
-use hyprrust::ctl::command::*;
+use hyprrust::commands::prelude::*;
 use hyprrust::HyprlandConnection;
 
 #[tokio::main]

@@ -1,26 +1,10 @@
-use crate::{
-    connection::{HyprlandConnection, HyprlandError},
-    LibraryError,
-};
-use core::fmt;
-use std::{error::Error, io, ops::Deref};
+use crate::connection::HyprlandConnection;
+use crate::errors::{CommandError, HyprlandError};
+use std::ops::Deref;
 
 mod commands;
-pub use super::arguments::*;
+use super::arguments::*;
 pub use commands::*;
-
-#[derive(Debug)]
-pub enum CommandError {
-    HyprlandError(HyprlandError),
-    IOError(io::Error),
-    LibraryError(LibraryError),
-}
-impl fmt::Display for CommandError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
-    }
-}
-impl Error for CommandError {}
 
 pub type Recipe = Vec<Box<dyn Command>>;
 #[macro_export]
@@ -91,7 +75,7 @@ fn get_command_prefix<T: Command + ?Sized>(cmd: &T) -> &'static str {
     }
 }
 
-pub fn get_batch_from_recipe(recipe: &Recipe) -> String {
+fn get_batch_from_recipe(recipe: &Recipe) -> String {
     let mut full_command = String::from("/[[BATCH]]");
     for command in recipe {
         full_command.push_str(get_command_prefix(command.deref()));

@@ -1,6 +1,6 @@
 use std::io;
 
-use hyprrust::ctl::data::*;
+use hyprrust::data::*;
 use hyprrust::HyprlandConnection;
 
 #[tokio::main]
