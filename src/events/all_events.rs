@@ -106,7 +106,6 @@ pub enum HyprlandEvent {
     Urgent {
         window_address: String,
     },
-    // TODO: test if struct is correct
     Screencast {
         state: bool,
         owner: String,

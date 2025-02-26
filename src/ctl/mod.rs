@@ -38,7 +38,7 @@ impl HyprlandConnection {
 
     /// Sends a string to the hyprland socket not checking anything besides io errors.
     pub async fn send_raw_message(&self, msg: &str) -> Result<String, io::Error> {
-        let mut path = self.get_socket_path()?;
+        let mut path = self.get_ctl_socket_path()?;
         path.push(".socket.sock");
 
         let socket = UnixStream::connect(path).await?;

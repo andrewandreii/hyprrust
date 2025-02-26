@@ -6,6 +6,6 @@ While there are other crates that are used to communicate with the Hyprland sock
  - Events are received through async channels
  - Ability to connect to as many hyprland sockets as you want
  - Ability to implement your own Hyprland commands
- - Batching commands (TODO)
+ - Batching commands
 
 This library hasn't released yet.

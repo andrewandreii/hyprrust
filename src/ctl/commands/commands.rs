@@ -94,7 +94,6 @@ make_command!(Fullscreen: DispatchCommand, "fullscreen 0");
 
 make_command!(FullscreenMaximize: DispatchCommand, "fullscreen 1");
 
-// TODO: should be newtype?
 impl ToString for FullscreenState {
     fn to_string(&self) -> String {
         match self {

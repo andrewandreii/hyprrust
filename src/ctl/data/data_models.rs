@@ -156,7 +156,6 @@ pub struct Window {
     pub title: String,
     pub initial_class: String,
     pub initial_title: String,
-    // TODO: is this true all the time?
     pub pid: i32,
     pub xwayland: bool,
     pub pinned: bool,
