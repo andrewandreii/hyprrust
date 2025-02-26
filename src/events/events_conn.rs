@@ -281,8 +281,7 @@ impl HyprlandConnection {
             self.stop_listening();
         }
 
-        let mut path = self.get_socket_path()?;
-        path.push(".socket2.sock");
+        let path = self.get_event_socket_path()?;
         let socket = UnixStream::connect(path).await?;
 
         let (tx, rx) = broadcast::channel(16);

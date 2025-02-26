@@ -78,9 +78,10 @@ impl HyprlandConnection {
             .collect())
     }
 
-    pub(crate) fn get_socket_path(&self) -> Result<PathBuf, io::Error> {
+    pub(crate) fn get_socket_path(&self, socket_name: &str) -> Result<PathBuf, io::Error> {
         let mut path = HyprlandConnection::get_runtime_dir();
         path.push(self.instance.clone());
+        path.push(socket_name);
 
         if path.exists() {
             Ok(path)
@@ -90,6 +91,14 @@ impl HyprlandConnection {
                 "Socket file not found.",
             ))
         }
+    }
+
+    pub(crate) fn get_event_socket_path(&self) -> Result<PathBuf, io::Error> {
+        Ok(self.get_socket_path(".socket2.sock")?)
+    }
+
+    pub(crate) fn get_ctl_socket_path(&self) -> Result<PathBuf, io::Error> {
+        Ok(self.get_socket_path(".socket.sock")?)
     }
 }
 
