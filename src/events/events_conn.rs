@@ -1,3 +1,4 @@
+use core::panic;
 use std::collections::HashSet;
 use std::io;
 use std::str;
@@ -263,21 +264,21 @@ fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEvent, &'stati
     }
 }
 
+// TODO: unsure about returning broadcast::Receiver<_>
 impl HyprlandConnection {
-    // Spawns a task that listens to Hyprland events and sends them through an async channel. If a
-    // connection already exists, it returns a receiver to the old one. Use [`stop_listening`] if
-    // you want a completely new connection to the socket.
-    //
-    // Once created, the listening task won't die even if all receivers have been dropped. To
-    // kill it call [`stop_listening`].
-    //
-    // [`stop_listening`]: #method.stop_listening
+    /// Spawns a task that listens to Hyprland events and sends them through an async channel. If a
+    /// connection already exists, it gets restarted with the new filter provided.
+    ///
+    /// Once created, the listening task won't die even if all receivers have been dropped. To
+    /// kill it call [`stop_listening`].
+    ///
+    /// [`stop_listening`]: #method.stop_listening
     pub async fn listen_to_events(
         &mut self,
         filter: Option<EventFilter>,
     ) -> Result<broadcast::Receiver<HyprlandEvent>, io::Error> {
-        if let Some(event_connection) = self.event_connection.as_ref() {
-            return Ok(event_connection.receiver.resubscribe());
+        if let Some(_) = self.event_connection.as_ref() {
+            self.stop_listening();
         }
 
         let mut path = self.get_socket_path()?;
@@ -286,7 +287,7 @@ impl HyprlandConnection {
 
         let (tx, rx) = broadcast::channel(16);
 
-        let filter = filter.unwrap_or_else(|| EventFilter::default());
+        let filter = filter.unwrap_or_else(|| EventFilter::new_include_all());
 
         let abort_handle = tokio::spawn(async move {
             'main_loop: loop {
@@ -322,6 +323,17 @@ impl HyprlandConnection {
         });
 
         Ok(rx_clone)
+    }
+
+    /// Resubscribes to the event receiver. Must be called after [`listen_to_events`].
+    ///
+    /// [`listen_to_events`]: #method.listen_to_events
+    pub fn resubscribe_to_events(&self) -> broadcast::Receiver<HyprlandEvent> {
+        if let Some(ev_conn) = &self.event_connection {
+            ev_conn.receiver.resubscribe()
+        } else {
+            panic!("Listener task hasn't been started");
+        }
     }
 
     /// Returns whether this connection is currently listening to events or not
