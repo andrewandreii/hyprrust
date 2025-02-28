@@ -6,7 +6,10 @@ mod commands;
 use super::arguments::*;
 pub use commands::*;
 
+/// A vector of commands
 pub type Recipe = Vec<Box<dyn Command>>;
+/// Creates a Recipe (`Vec<Box<dyn Command>>`). Just a shorthand so that you don't have to call
+/// `Box::new`
 #[macro_export]
 macro_rules! recipe {
     [] => {
