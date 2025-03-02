@@ -168,23 +168,17 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
     }
 }
 
+/// Represents a filter for HyprlandEvents.
+/// When the library tries to parse an event, this struct gets passed to the parse function. If the
+/// current event doesn't pass the filter, it will not get parsed thus saving both time and memory.
 #[derive(Debug, Clone)]
 pub struct EventFilter {
     filter_set: HashSet<String>,
     include: bool,
 }
+
 impl EventFilter {
-    pub fn all_events() -> Self {
-        EventFilter {
-            filter_set: HashSet::new(),
-            include: false,
-        }
-    }
-
-    pub fn new_include_all() -> Self {
-        Self::all_events()
-    }
-
+    /// Creates a new filter with the specified inclusion.
     pub fn new(include: bool) -> Self {
         EventFilter {
             filter_set: HashSet::new(),
@@ -192,26 +186,41 @@ impl EventFilter {
         }
     }
 
+    /// Creates a new filter that lets all events pass. Equivalent to `EventFilter::new(false)`
+    pub fn new_include_all() -> Self {
+        Self::new(false)
+    }
+
+    /// Creates a new filter that doesn't let anything pass. Equivalent to `EventFilter::new(true)`
+    pub fn new_exclude_all() -> Self {
+        Self::new(true)
+    }
+
+    /// Sets whether events present in the filter should be filtered in or out.
     pub fn set_include(&mut self, include: bool) {
         self.include = include;
     }
 
+    /// Adds an event to the filter.
     pub fn add_event(&mut self, ev_name: &str) {
         self.filter_set.insert(ev_name.to_string());
     }
 
+    /// Returns whether the specified event passes the filter or not.
     pub fn includes(&self, ev_name: &str) -> bool {
         !(self.filter_set.contains(ev_name) ^ self.include)
     }
 
+    /// Returns whether this filter let's anything pass or it rejects all events.
     pub fn filters_everything(&self) -> bool {
         self.filter_set.is_empty() && self.include
     }
 }
 
 impl Default for EventFilter {
+    /// Equivalent to `Self::new_exclude_all()`
     fn default() -> Self {
-        Self::new(true)
+        Self::new_exclude_all()
     }
 }
 
