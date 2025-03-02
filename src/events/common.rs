@@ -1,6 +1,8 @@
 use crate::events::HyprlandEvent;
 use std::collections::HashSet;
 
+use super::HyprlandEventType;
+
 fn parse_bool(arg: &str) -> bool {
     return arg.as_bytes()[0] == b'1';
 }
@@ -173,7 +175,7 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
 /// current event doesn't pass the filter, it will not get parsed thus saving both time and memory.
 #[derive(Debug, Clone)]
 pub struct EventFilter {
-    filter_set: HashSet<String>,
+    filter_set: HashSet<&'static str>,
     include: bool,
 }
 
@@ -202,8 +204,8 @@ impl EventFilter {
     }
 
     /// Adds an event to the filter.
-    pub fn add_event(&mut self, ev_name: &str) {
-        self.filter_set.insert(ev_name.to_string());
+    pub fn add_event(&mut self, ev_type: &HyprlandEventType) {
+        self.filter_set.insert(ev_type.get_name());
     }
 
     /// Returns whether the specified event passes the filter or not.
@@ -226,12 +228,13 @@ impl Default for EventFilter {
 
 impl<I> FromIterator<I> for EventFilter
 where
-    I: AsRef<str>,
+    I: AsRef<HyprlandEventType>,
 {
+    /// Returns an EventFilter that lets all events in the iterator pass.
     fn from_iter<T: IntoIterator<Item = I>>(iter: T) -> Self {
-        let mut filter = Self::default();
-        for ev_name in iter {
-            filter.add_event(ev_name.as_ref());
+        let mut filter = Self::new_exclude_all();
+        for ev_type in iter {
+            filter.add_event(ev_type.as_ref());
         }
         filter
     }
