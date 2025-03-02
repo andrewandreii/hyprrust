@@ -49,11 +49,51 @@ impl HyprlandConnection {
         }
     }
 
+    /// The blocking counterpart of [`send_command`].
+    ///
+    /// [`send_command`]: #method.send_command
+    #[cfg(feature = "sync")]
+    pub fn send_command_sync<T: Command + ?Sized>(&self, command: &T) -> Result<(), CommandError> {
+        match self.send_raw_message_sync(
+            format!("{}{}", get_command_prefix(command), command.get_command()).as_str(),
+        ) {
+            Ok(s) if s.starts_with("ok") => Ok(()),
+            Err(e) => Err(CommandError::IOError(e)),
+            Ok(error) => Err(CommandError::HyprlandError(HyprlandError::new(error))),
+        }
+    }
+
+    /// Sends a list of commands to the socket at once. This is faster than sending each command
+    /// separately.
     #[cfg(feature = "async")]
     pub async fn send_recipe(&self, recipe: &Recipe) -> Result<(), Vec<CommandError>> {
         let resp = self
             .send_raw_message(get_batch_from_recipe(recipe).as_str())
             .await;
+
+        match resp {
+            Ok(resp) => {
+                let errors = resp
+                    .split("\n\n\n")
+                    .filter(|resp| resp != &"ok")
+                    .map(|resp| CommandError::HyprlandError(HyprlandError::new(resp.to_string())))
+                    .collect::<Vec<CommandError>>();
+                if errors.is_empty() {
+                    Ok(())
+                } else {
+                    Err(errors)
+                }
+            }
+            Err(e) => Err(vec![CommandError::IOError(e)]),
+        }
+    }
+
+    /// The blocking counterpart of [`send_recipe`].
+    ///
+    /// [`send_recipe`]: #method.send_recipe
+    #[cfg(feature = "sync")]
+    pub fn send_recipe_sync(&self, recipe: &Recipe) -> Result<(), Vec<CommandError>> {
+        let resp = self.send_raw_message_sync(get_batch_from_recipe(recipe).as_str());
 
         match resp {
             Ok(resp) => {
