@@ -2,11 +2,17 @@ use nix::unistd::getuid;
 use std::env::VarError;
 use std::fs::read_dir;
 use std::{env, io, path::PathBuf};
-use tokio::sync::broadcast;
+
+#[cfg(feature = "async")]
 use tokio::task::AbortHandle;
 
+#[cfg(feature = "async")]
+use tokio::sync::broadcast;
+
+#[cfg(feature = "async")]
 use crate::events::HyprlandEvent;
 
+#[cfg(feature = "async")]
 #[derive(Debug)]
 pub(crate) struct EventConnection {
     pub abort_handle: AbortHandle,
@@ -18,6 +24,7 @@ pub(crate) struct EventConnection {
 #[derive(Debug)]
 pub struct HyprlandConnection {
     instance: String,
+    #[cfg(feature = "async")]
     pub(crate) event_connection: Option<EventConnection>,
 }
 
@@ -39,6 +46,7 @@ impl HyprlandConnection {
     pub fn new_with_instance(instance: String) -> HyprlandConnection {
         HyprlandConnection {
             instance,
+            #[cfg(feature = "async")]
             event_connection: None,
         }
     }

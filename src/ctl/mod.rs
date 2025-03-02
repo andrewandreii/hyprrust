@@ -1,6 +1,8 @@
 use std::io::{self, Read, Write};
 
 use std::os::unix::net::UnixStream as SyncUnixStream;
+
+#[cfg(feature = "async")]
 use tokio::{io::Interest, net::UnixStream};
 
 use crate::connection::HyprlandConnection;
@@ -13,6 +15,7 @@ impl HyprlandConnection {
     /// Works the same as [`send_raw_message`].
     ///
     /// [`send_raw_message`]: #method.send_raw_message
+    #[cfg(feature = "sync")]
     pub fn send_raw_message_sync(&self, msg: &str) -> Result<String, io::Error> {
         let path = self.get_ctl_socket_path()?;
 
@@ -37,6 +40,7 @@ impl HyprlandConnection {
     }
 
     /// Sends a string to the hyprland socket not checking anything besides io errors.
+    #[cfg(feature = "async")]
     pub async fn send_raw_message(&self, msg: &str) -> Result<String, io::Error> {
         let mut path = self.get_ctl_socket_path()?;
         path.push(".socket.sock");

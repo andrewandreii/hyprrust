@@ -19,6 +19,7 @@ impl HyprlandConnection {
     /// let conn = HyprlandConnection::new();
     /// let version = conn.get<Version>().await?;
     /// ```
+    #[cfg(feature = "async")]
     pub async fn get<T>(&self) -> Result<T, io::Error>
     where
         T: HyprlandData + DeserializeOwned,
@@ -40,6 +41,7 @@ impl HyprlandConnection {
     /// let conn = HyprlandConnection::new();
     /// let terminal_decorations = conn.get<Decorations>("class:st".to_string()).await?;
     /// ```
+    #[cfg(feature = "async")]
     pub async fn get_with_argument<T>(&self, arg: String) -> Result<T, io::Error>
     where
         T: HyprlandDataWithArgument + DeserializeOwned,
@@ -54,6 +56,7 @@ impl HyprlandConnection {
     /// See [`get`].
     ///
     /// [`get`]: #method.get
+    #[cfg(feature = "sync")]
     pub fn get_sync<T>(&self) -> Result<T, io::Error>
     where
         T: HyprlandData + DeserializeOwned,
@@ -68,6 +71,7 @@ impl HyprlandConnection {
     /// See [`get_with_argument`].
     ///
     /// [`get_with_argument`]: #method.get_with_argument
+    #[cfg(feature = "sync")]
     pub fn get_with_argument_sync<T>(&self, arg: String) -> Result<T, io::Error>
     where
         T: HyprlandDataWithArgument + DeserializeOwned,

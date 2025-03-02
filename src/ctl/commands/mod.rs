@@ -35,6 +35,7 @@ impl HyprlandConnection {
     /// let conn = HyprlandConnection::new();
     /// conn.dispatch(MoveWindow::with_direction(DirectionArgument::Left))
     /// ```
+    #[cfg(feature = "async")]
     pub async fn send_command<T: Command + ?Sized>(&self, command: &T) -> Result<(), CommandError> {
         match self
             .send_raw_message(
@@ -48,6 +49,7 @@ impl HyprlandConnection {
         }
     }
 
+    #[cfg(feature = "async")]
     pub async fn send_recipe(&self, recipe: &Recipe) -> Result<(), Vec<CommandError>> {
         let resp = self
             .send_raw_message(get_batch_from_recipe(recipe).as_str())

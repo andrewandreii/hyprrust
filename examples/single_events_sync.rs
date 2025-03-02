@@ -3,8 +3,7 @@ use hyprrust::{
     HyprlandConnection,
 };
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let conn = HyprlandConnection::new();
     let mut ev_conn =
         DetachedEventConnection::from_connection(conn, Some(EventFilter::new_include_all()))
