@@ -1,5 +1,8 @@
+use hyprrust_macros::generate_enum_types;
+
 /// Represents a Hyprland event. The events have the meaning specified here: <https://wiki.hyprland.org/IPC>
 #[derive(Clone, Debug)]
+#[generate_enum_types]
 pub enum HyprlandEvent {
     Workspace {
         name: String,
@@ -138,48 +141,7 @@ pub enum HyprlandEvent {
         address: String,
         pin_state: bool,
     },
-    Custome {
+    Custom {
         data: String,
     },
 }
-
-pub const ALL_EVENTS: &[&'static str] = &[
-    "workspace",
-    "workspacev2",
-    "focusedmon",
-    "focusedmonv2",
-    "activewindow",
-    "activewindowv2",
-    "fullscreen",
-    "monitorremoved",
-    "monitoradded",
-    "monitoraddedv2",
-    "createworkspace",
-    "createworkspacev2",
-    "destroyworkspace",
-    "destroyworkspacev2",
-    "moveworkspace",
-    "moveworkspacev2",
-    "renameworkspace",
-    "activespecial",
-    "activelayout",
-    "openwindow",
-    "closewindow",
-    "movewindow",
-    "movewindowv2",
-    "openlayer",
-    "closelayer",
-    "submap",
-    "changefloatingmode",
-    "urgent",
-    "screencast",
-    "windowtitle",
-    "windowtitlev2",
-    "togglegroup",
-    "moveintogroup",
-    "moveoutofgroup",
-    "ignoregrouplock",
-    "lockgroups",
-    "configreloaded",
-    "pin",
-];

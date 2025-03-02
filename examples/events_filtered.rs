@@ -1,15 +1,24 @@
-use hyprrust::events::{event_name, EventFilter};
+use hyprrust::events::{EventFilter, HyprlandEventType};
 use hyprrust::HyprlandConnection;
 
 #[tokio::main]
 async fn main() {
     let mut conn = HyprlandConnection::new();
-    let filter = [
-        event_name!(HyprlandEvent::ActiveWindow),
-        event_name!(HyprlandEvent::WindowTitleV2),
+
+    // This filter includes everything present in the list
+    let mut filter = [
+        HyprlandEventType::ActiveWindow,
+        HyprlandEventType::ActiveWindowV2,
+        HyprlandEventType::WindowTitle,
+        HyprlandEventType::WindowTitleV2,
+        HyprlandEventType::DestroyWorkspace,
+        HyprlandEventType::DestroyWorkspaceV2,
     ]
     .iter()
     .collect::<EventFilter>();
+
+    // Set the filter so it includes everything besides what was in the list
+    filter.set_include(false);
 
     let mut rx = conn.listen_to_events(Some(filter)).await.unwrap();
     while let Ok(ev) = rx.recv().await {

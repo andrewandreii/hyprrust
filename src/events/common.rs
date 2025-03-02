@@ -162,22 +162,11 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
             address: argv[0].to_owned(),
             pin_state: parse_bool(argv[1]),
         }),
-        _ => Ok(HyprlandEvent::Custome {
+        _ => Ok(HyprlandEvent::Custom {
             data: argv.join(","),
         }),
     }
 }
-
-#[macro_export]
-macro_rules! event_name {
-    (HyprlandEvent::$variant:ident) => {
-        stringify!($variant).to_ascii_lowercase()
-    };
-    ($variant:ident) => {
-        stringify!($variant).to_ascii_lowercase()
-    };
-}
-pub use event_name;
 
 #[derive(Debug, Clone)]
 pub struct EventFilter {
@@ -207,8 +196,8 @@ impl EventFilter {
         self.include = include;
     }
 
-    pub fn add_event(&mut self, ev_name: String) {
-        self.filter_set.insert(ev_name);
+    pub fn add_event(&mut self, ev_name: &str) {
+        self.filter_set.insert(ev_name.to_string());
     }
 
     pub fn includes(&self, ev_name: &str) -> bool {
@@ -226,31 +215,14 @@ impl Default for EventFilter {
     }
 }
 
-impl FromIterator<String> for EventFilter {
-    fn from_iter<T: IntoIterator<Item = String>>(iter: T) -> Self {
+impl<I> FromIterator<I> for EventFilter
+where
+    I: AsRef<str>,
+{
+    fn from_iter<T: IntoIterator<Item = I>>(iter: T) -> Self {
         let mut filter = Self::default();
         for ev_name in iter {
-            filter.add_event(ev_name);
-        }
-        filter
-    }
-}
-
-impl<'iter> FromIterator<&'iter String> for EventFilter {
-    fn from_iter<T: IntoIterator<Item = &'iter String>>(iter: T) -> Self {
-        let mut filter = Self::default();
-        for ev_name in iter {
-            filter.add_event(ev_name.clone());
-        }
-        filter
-    }
-}
-
-impl<'iter> FromIterator<&'iter str> for EventFilter {
-    fn from_iter<T: IntoIterator<Item = &'iter str>>(iter: T) -> Self {
-        let mut filter = Self::default();
-        for ev_name in iter {
-            filter.add_event(ev_name.to_string());
+            filter.add_event(ev_name.as_ref());
         }
         filter
     }
