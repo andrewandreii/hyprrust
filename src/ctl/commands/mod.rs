@@ -25,15 +25,10 @@ macro_rules! recipe {
 pub use recipe;
 
 impl HyprlandConnection {
-    /// Send a dispatch command to Hyprland
-    ///
-    /// # Example
+    /// Send a dispatch command to Hyprland.
     ///
     /// ```
-    /// use hyprrust::connection::HyprlandConnection;
-    /// use hyprrust::ctl::command::*;
-    /// let conn = HyprlandConnection::new();
-    /// conn.dispatch(MoveWindow::with_direction(DirectionArgument::Left))
+    #[doc = include_str!("../../../examples/simple_command.rs")]
     /// ```
     #[cfg(feature = "async")]
     pub async fn send_command<T: Command + ?Sized>(&self, command: &T) -> Result<(), CommandError> {

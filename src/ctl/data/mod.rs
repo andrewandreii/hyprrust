@@ -11,13 +11,8 @@ use std::io;
 impl HyprlandConnection {
     /// Returns the data T requested from Hyprland.
     ///
-    /// # Example
-    ///
     /// ```
-    /// use hyprrust::connection::HyprlandConnection;
-    /// use hyprrust::ctl::data::*;
-    /// let conn = HyprlandConnection::new();
-    /// let version = conn.get<Version>().await?;
+    #[doc = include_str!("../../../examples/simple_data.rs")]
     /// ```
     #[cfg(feature = "async")]
     pub async fn get<T>(&self) -> Result<T, io::Error>
@@ -33,14 +28,9 @@ impl HyprlandConnection {
     // TODO: The argument should be of a type from arguments.rs
     /// Returns the data T requested from Hyprland also passing an argument
     ///
-    /// # Example
+    /// See the example for [`get`].
     ///
-    /// ```
-    /// use hyprrust::connection::HyprlandConnection;
-    /// use hyprrust::ctl::data::*;
-    /// let conn = HyprlandConnection::new();
-    /// let terminal_decorations = conn.get<Decorations>("class:st".to_string()).await?;
-    /// ```
+    /// [`get`]: #method.get
     #[cfg(feature = "async")]
     pub async fn get_with_argument<T>(&self, arg: String) -> Result<T, io::Error>
     where
@@ -52,7 +42,7 @@ impl HyprlandConnection {
         Ok(serde_json::from_str(resp.as_str())?)
     }
 
-    /// The same behaviour as get, but without async.
+    /// The same behaviour as [`get`], but without async.
     /// See [`get`].
     ///
     /// [`get`]: #method.get
@@ -101,7 +91,7 @@ mod data_tests {
         assert!(conn.get_sync::<Windows>().is_ok());
         assert!(conn.get_sync::<Devices>().is_ok());
         assert!(conn
-            .get_with_argument_sync::<Decorations>("class:st".to_owned())
+            .get_with_argument_sync::<Decorations>("class:kitty".to_owned())
             .is_ok());
         assert!(conn.get_sync::<Binds>().is_ok());
         assert!(conn.get_sync::<Layers>().is_ok());
