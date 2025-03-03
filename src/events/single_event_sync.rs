@@ -23,7 +23,7 @@ impl DetachedEventConnection {
     ) -> Result<Self, io::Error> {
         let path = conn.get_event_socket_path()?;
 
-        let filter = filter.unwrap_or_else(|| EventFilter::new_include_all());
+        let filter = filter.unwrap_or_else(EventFilter::new_include_all);
 
         Ok(DetachedEventConnection {
             socket: BufReader::new(UnixStream::connect(path)?),

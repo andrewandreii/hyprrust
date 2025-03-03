@@ -11,22 +11,12 @@ impl<'de> Deserialize<'de> for FullscreenState {
         use FullscreenState::*;
 
         match <u8 as Deserialize>::deserialize(deserializer) {
-            Ok(0) => {
-                return Ok(None);
-            }
-            Ok(1) => {
-                return Ok(Maximized);
-            }
-            Ok(2) => {
-                return Ok(Fullscreen);
-            }
-            Ok(3) => {
-                return Ok(Max);
-            }
-            _ => {
-                return Err(Error::custom("Invalid fullscreen value"));
-            }
-        };
+            Ok(0) => Ok(None),
+            Ok(1) => Ok(Maximized),
+            Ok(2) => Ok(Fullscreen),
+            Ok(3) => Ok(Max),
+            _ => Err(Error::custom("Invalid fullscreen value")),
+        }
     }
 }
 

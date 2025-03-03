@@ -4,11 +4,11 @@ use std::collections::HashSet;
 use super::HyprlandEventType;
 
 fn parse_bool(arg: &str) -> bool {
-    return arg.as_bytes()[0] == b'1';
+    arg.as_bytes()[0] == b'1'
 }
 
 fn parse_int(arg: &str) -> i64 {
-    return arg.parse().unwrap();
+    arg.parse().unwrap()
 }
 
 pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEvent, &'static str> {

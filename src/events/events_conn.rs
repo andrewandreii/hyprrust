@@ -25,7 +25,7 @@ impl HyprlandConnection {
         &mut self,
         filter: Option<EventFilter>,
     ) -> Result<broadcast::Receiver<HyprlandEvent>, io::Error> {
-        if let Some(_) = self.event_connection.as_ref() {
+        if self.event_connection.is_some() {
             self.stop_listening();
         }
 
@@ -34,7 +34,7 @@ impl HyprlandConnection {
 
         let (tx, rx) = broadcast::channel(16);
 
-        let filter = filter.unwrap_or_else(|| EventFilter::new_include_all());
+        let filter = filter.unwrap_or_else(EventFilter::new_include_all);
 
         let abort_handle = tokio::spawn(async move {
             'main_loop: loop {
@@ -49,7 +49,7 @@ impl HyprlandConnection {
                             .unwrap();
                         for line in str_buf.split('\n') {
                             if let Ok(event) = parse_event(line, &filter) {
-                                if let Err(_) = tx.send(event) {
+                                if tx.send(event).is_err() {
                                     break 'main_loop;
                                 }
                             }

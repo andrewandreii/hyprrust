@@ -3,6 +3,10 @@ use std::ops::Deref;
 
 use super::data::{Monitor, Window, Workspace, WorkspaceBrief};
 
+pub trait Argument {
+    fn to_argument_string(&self) -> String;
+}
+
 #[derive(Debug, Clone)]
 pub enum WindowArgument {
     Class(String),
@@ -17,8 +21,8 @@ pub enum WindowArgument {
     Tiled,
 }
 
-impl ToString for WindowArgument {
-    fn to_string(&self) -> String {
+impl Argument for WindowArgument {
+    fn to_argument_string(&self) -> String {
         use WindowArgument::*;
         match self {
             Class(class) => format!("class:{}", class),
@@ -47,8 +51,8 @@ pub enum RelAbs {
     Absolute(u32),
 }
 
-impl ToString for RelAbs {
-    fn to_string(&self) -> String {
+impl Argument for RelAbs {
+    fn to_argument_string(&self) -> String {
         match self {
             RelAbs::Relative(id) if *id >= 0 => format!("+{}", id),
             RelAbs::Relative(id) => id.to_string(),
@@ -74,15 +78,15 @@ pub enum WorkspaceArgument {
     Special(Option<String>),
 }
 
-impl ToString for WorkspaceArgument {
-    fn to_string(&self) -> String {
+impl Argument for WorkspaceArgument {
+    fn to_argument_string(&self) -> String {
         use WorkspaceArgument::*;
         match self {
             ID(id) => id.to_string(),
-            RelativeID(id) => RelAbs::Relative(*id).to_string(),
-            WorkspaceOnMonitor(relabs) => format!("m{}", relabs.to_string()),
-            WorkspaceOnMonitorWithEmpty(relabs) => format!("r{}", relabs.to_string()),
-            OpenWorkspace(relabs) => format!("e{}", relabs.to_string()),
+            RelativeID(id) => RelAbs::Relative(*id).to_argument_string(),
+            WorkspaceOnMonitor(relabs) => format!("m{}", relabs.to_argument_string()),
+            WorkspaceOnMonitorWithEmpty(relabs) => format!("r{}", relabs.to_argument_string()),
+            OpenWorkspace(relabs) => format!("e{}", relabs.to_argument_string()),
             Name(name) => format!("name:{}", name),
             Previous => "previous".to_string(),
             PreviousPerMonitor => "previous_per_monitor".to_string(),
@@ -116,8 +120,8 @@ pub enum DirectionArgument {
     Down,
 }
 
-impl ToString for DirectionArgument {
-    fn to_string(&self) -> String {
+impl Argument for DirectionArgument {
+    fn to_argument_string(&self) -> String {
         use DirectionArgument::*;
         match self {
             Left => "l",
@@ -138,15 +142,15 @@ pub enum MonitorArgument {
     Relative(i32),
 }
 
-impl ToString for MonitorArgument {
-    fn to_string(&self) -> String {
+impl Argument for MonitorArgument {
+    fn to_argument_string(&self) -> String {
         use MonitorArgument::*;
         match self {
-            Direction(dir) => dir.to_string(),
+            Direction(dir) => dir.to_argument_string(),
             ID(id) => id.to_string(),
             Name(name) => name.clone(),
             Current => "current".to_string(),
-            Relative(rel) => RelAbs::Relative(*rel).to_string(),
+            Relative(rel) => RelAbs::Relative(*rel).to_argument_string(),
         }
     }
 }
@@ -185,8 +189,8 @@ pub enum ResizeArgument {
     Exact(NumPercent, NumPercent),
 }
 
-impl ToString for ResizeArgument {
-    fn to_string(&self) -> String {
+impl Argument for ResizeArgument {
+    fn to_argument_string(&self) -> String {
         match self {
             Self::Relative(w, h) => format!("{} {}", w, h),
             Self::Exact(w, h) => format!("exact {} {}", w, h),
@@ -200,8 +204,8 @@ pub enum FloatArgument {
     Exact(f32),
 }
 
-impl ToString for FloatArgument {
-    fn to_string(&self) -> String {
+impl Argument for FloatArgument {
+    fn to_argument_string(&self) -> String {
         match self {
             Self::Relative(float) => float.to_string(),
             Self::Exact(float) => format!("exact {}", float),
@@ -222,8 +226,8 @@ pub enum ZHeightArgument {
     Bottom,
 }
 
-impl ToString for ZHeightArgument {
-    fn to_string(&self) -> String {
+impl Argument for ZHeightArgument {
+    fn to_argument_string(&self) -> String {
         match self {
             Self::Top => "top".to_string(),
             Self::Bottom => "bottom".to_string(),
@@ -243,8 +247,8 @@ pub enum ModArgument {
     Mod5,
 }
 
-impl ToString for ModArgument {
-    fn to_string(&self) -> String {
+impl Argument for ModArgument {
+    fn to_argument_string(&self) -> String {
         use ModArgument::*;
         match self {
             Shift => "SHIFT",
@@ -267,8 +271,8 @@ pub enum KeyArgument {
     Mouse(u32),
 }
 
-impl ToString for KeyArgument {
-    fn to_string(&self) -> String {
+impl Argument for KeyArgument {
+    fn to_argument_string(&self) -> String {
         match self {
             KeyArgument::Char(c) => c.to_string(),
             KeyArgument::Code(code) => format!("code:{}", code),
@@ -279,8 +283,8 @@ impl ToString for KeyArgument {
 
 #[derive(Debug, Clone, Copy)]
 pub struct BoolArgument(bool);
-impl ToString for BoolArgument {
-    fn to_string(&self) -> String {
+impl Argument for BoolArgument {
+    fn to_argument_string(&self) -> String {
         match self.0 {
             true => "1".to_string(),
             false => "0".to_string(),
@@ -345,8 +349,8 @@ impl Default for CycleNextArguments {
     }
 }
 
-impl ToString for CycleNextArguments {
-    fn to_string(&self) -> String {
+impl Argument for CycleNextArguments {
+    fn to_argument_string(&self) -> String {
         format!(
             "{} {} {} {}",
             str_if(self.visible, "visible"),
@@ -364,8 +368,8 @@ pub enum TagArgument {
     Toggle(String),
 }
 
-impl ToString for TagArgument {
-    fn to_string(&self) -> String {
+impl Argument for TagArgument {
+    fn to_argument_string(&self) -> String {
         match self {
             Self::Set(tag) => format!("+{}", tag),
             Self::Unset(tag) => format!("-{}", tag),
@@ -382,16 +386,16 @@ pub enum CornerArgument {
     TopLeft = 3,
 }
 
-impl ToString for CornerArgument {
-    fn to_string(&self) -> String {
+impl Argument for CornerArgument {
+    fn to_argument_string(&self) -> String {
         (*self as i32).to_string()
     }
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct IntArgument(i32);
-impl ToString for IntArgument {
-    fn to_string(&self) -> String {
+impl Argument for IntArgument {
+    fn to_argument_string(&self) -> String {
         self.0.to_string()
     }
 }
@@ -399,12 +403,6 @@ impl ToString for IntArgument {
 impl From<i32> for IntArgument {
     fn from(value: i32) -> Self {
         IntArgument(value)
-    }
-}
-
-impl Into<i32> for IntArgument {
-    fn into(self) -> i32 {
-        self.0
     }
 }
 
@@ -418,8 +416,8 @@ impl Deref for IntArgument {
 
 #[derive(Debug, Clone)]
 pub struct StringArgument(String);
-impl ToString for StringArgument {
-    fn to_string(&self) -> String {
+impl Argument for StringArgument {
+    fn to_argument_string(&self) -> String {
         self.0.clone()
     }
 }

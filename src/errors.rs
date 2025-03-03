@@ -30,7 +30,10 @@ pub enum CommandError {
 
 impl fmt::Display for CommandError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        match self {
+            Self::HyprlandError(e) => write!(f, "{}", e),
+            Self::IOError(e) => write!(f, "{}", e),
+        }
     }
 }
 

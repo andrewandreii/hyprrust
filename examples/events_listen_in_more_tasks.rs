@@ -1,16 +1,14 @@
-use std::future::{pending, Future};
+use std::future::pending;
 
 use hyprrust::{events::HyprlandEvent, HyprlandConnection};
 use tokio::sync::broadcast;
 
-fn simple_listener(
+async fn simple_listener(
     task_num: i32,
     mut rx: broadcast::Receiver<HyprlandEvent>,
-) -> impl Future<Output = ()> {
-    async move {
-        while let Ok(ev) = rx.recv().await {
-            println!("Task #{} got: {:?}", task_num, ev);
-        }
+) {
+    while let Ok(ev) = rx.recv().await {
+        println!("Task #{} got: {:?}", task_num, ev);
     }
 }
 

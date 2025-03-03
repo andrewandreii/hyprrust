@@ -1,3 +1,5 @@
+#![allow(clippy::new_without_default)]
+
 use super::*;
 use crate::ctl::data::FullscreenState;
 
@@ -37,7 +39,7 @@ macro_rules! make_command {
         }
         impl Command for $name {
             fn get_command(&self) -> String {
-                let args_string = "".to_string() $(+ self.$field.to_string().as_str() + $sep)*;
+                let args_string = "".to_string() $(+ self.$field.to_argument_string().as_str() + $sep)*;
                 format!(concat!($strname, " {}"), &args_string.as_str()[..args_string.len() - $sep.len()])
             }
 
@@ -94,8 +96,8 @@ make_command!(Fullscreen: DispatchCommand, "fullscreen 0");
 
 make_command!(FullscreenMaximize: DispatchCommand, "fullscreen 1");
 
-impl ToString for FullscreenState {
-    fn to_string(&self) -> String {
+impl Argument for FullscreenState {
+    fn to_argument_string(&self) -> String {
         match self {
             FullscreenState::None => "0",
             FullscreenState::Maximized => "1",
@@ -144,8 +146,10 @@ impl Command for MoveWindow {
     fn get_command(&self) -> String {
         let silent_str = if self.silent { "silent" } else { "" };
         match &self.what {
-            Either::First(dir) => format!("movewindow {} {}", dir.to_string(), silent_str),
-            Either::Second(mon) => format!("movewindow mon:{} {}", mon.to_string(), silent_str),
+            Either::First(dir) => format!("movewindow {} {}", dir.to_argument_string(), silent_str),
+            Either::Second(mon) => {
+                format!("movewindow mon:{} {}", mon.to_argument_string(), silent_str)
+            }
         }
     }
 

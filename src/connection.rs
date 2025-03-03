@@ -68,8 +68,7 @@ impl HyprlandConnection {
             path
         } else {
             let uid = getuid();
-            let path = PathBuf::from(format!("/run/user/{}/hypr", uid));
-            path
+            PathBuf::from(format!("/run/user/{}/hypr", uid))
         }
     }
 
@@ -101,10 +100,12 @@ impl HyprlandConnection {
         }
     }
 
+    #[allow(clippy::needless_question_mark)]
     pub(crate) fn get_event_socket_path(&self) -> Result<PathBuf, io::Error> {
         Ok(self.get_socket_path(".socket2.sock")?)
     }
 
+    #[allow(clippy::needless_question_mark)]
     pub(crate) fn get_ctl_socket_path(&self) -> Result<PathBuf, io::Error> {
         Ok(self.get_socket_path(".socket.sock")?)
     }

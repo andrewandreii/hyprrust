@@ -30,12 +30,8 @@ impl HyprlandConnection {
 
         let mut buf = String::new();
         match socket.read_to_string(&mut buf) {
-            Ok(_) => {
-                return Ok(buf);
-            }
-            Err(e) => {
-                return Err(e);
-            }
+            Ok(_) => Ok(buf),
+            Err(e) => Err(e),
         }
     }
 
