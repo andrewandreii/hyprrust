@@ -441,3 +441,48 @@ impl Deref for StringArgument {
         &self.0
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct ColorArgument {
+    hex_str: String,
+}
+
+impl ColorArgument {
+    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+        ColorArgument {
+            hex_str: format!("rgba({:02x}{:02x}{:02x}{:02x})", r, g, b, a),
+        }
+    }
+}
+
+impl Argument for ColorArgument {
+    fn to_argument_string(&self) -> String {
+        self.hex_str.clone()
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum NotifyIconArgument {
+    NoIcon,
+    Warning,
+    Info,
+    Hint,
+    Error,
+    Confused,
+    Ok,
+}
+
+impl Argument for NotifyIconArgument {
+    fn to_argument_string(&self) -> String {
+        match self {
+            Self::NoIcon => "-1",
+            Self::Warning => "0",
+            Self::Info => "1",
+            Self::Hint => "2",
+            Self::Error => "3",
+            Self::Confused => "4",
+            Self::Ok => "5",
+        }
+        .to_string()
+    }
+}

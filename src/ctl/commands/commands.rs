@@ -201,3 +201,10 @@ impl Command for SetConfigValue {
         )
     }
 }
+
+make_command_with_new!(ReloadConfig, "reload",);
+make_command_with_new!(KillWindowMode, "kill",);
+make_command_with_new!(SetCursorTheme, "setcursor", theme_name: StringArgument, size: IntArgument);
+make_command_with_new!(SetError, "seterror", color: ColorArgument, message: StringArgument);
+make_command_with_new!(Notify, "notify", icon: NotifyIconArgument, time_ms: IntArgument, color: ColorArgument, message: StringArgument);
+// TODO: implement output, setxkblayout, dismissnotify
