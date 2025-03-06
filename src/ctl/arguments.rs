@@ -428,6 +428,12 @@ impl From<String> for StringArgument {
     }
 }
 
+impl From<StringArgument> for String {
+    fn from(value: StringArgument) -> Self {
+        value.0
+    }
+}
+
 impl Deref for StringArgument {
     type Target = String;
 

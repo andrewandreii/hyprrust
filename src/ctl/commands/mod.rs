@@ -1,6 +1,7 @@
+use std::io;
+
 use crate::connection::HyprlandConnection;
 use crate::errors::{CommandError, HyprlandError};
-use std::ops::Deref;
 
 mod commands;
 use super::arguments::*;
@@ -32,30 +33,13 @@ impl HyprlandConnection {
     /// ```
     #[cfg(feature = "async")]
     pub async fn send_command<T: Command + ?Sized>(&self, command: &T) -> Result<(), CommandError> {
-        match self
-            .send_raw_message(
-                format!("{}{}", get_command_prefix(command), command.get_command()).as_str(),
-            )
-            .await
-        {
-            Ok(s) if s.starts_with("ok") => Ok(()),
-            Err(e) => Err(CommandError::IOError(e)),
-            Ok(error) => Err(CommandError::HyprlandError(HyprlandError::new(error))),
-        }
+        check_hyprland_response(self.send_raw_message(command.get_command().as_str()).await)
     }
 
-    /// The blocking counterpart of [`send_command`].
-    ///
-    /// [`send_command`]: #method.send_command
+    /// The blocking counterpart of [`Self::send_command`].
     #[cfg(feature = "sync")]
     pub fn send_command_sync<T: Command + ?Sized>(&self, command: &T) -> Result<(), CommandError> {
-        match self.send_raw_message_sync(
-            format!("{}{}", get_command_prefix(command), command.get_command()).as_str(),
-        ) {
-            Ok(s) if s.starts_with("ok") => Ok(()),
-            Err(e) => Err(CommandError::IOError(e)),
-            Ok(error) => Err(CommandError::HyprlandError(HyprlandError::new(error))),
-        }
+        check_hyprland_response(self.send_raw_message_sync(command.get_command().as_str()))
     }
 
     /// Sends a list of commands to the socket at once. This is faster than sending each command
@@ -83,9 +67,7 @@ impl HyprlandConnection {
         }
     }
 
-    /// The blocking counterpart of [`send_recipe`].
-    ///
-    /// [`send_recipe`]: #method.send_recipe
+    /// The blocking counterpart of [`Self::send_recipe`].
     #[cfg(feature = "sync")]
     pub fn send_recipe_sync(&self, recipe: &Recipe) -> Result<(), Vec<CommandError>> {
         let resp = self.send_raw_message_sync(get_batch_from_recipe(recipe).as_str());
@@ -106,22 +88,46 @@ impl HyprlandConnection {
             Err(e) => Err(vec![CommandError::IOError(e)]),
         }
     }
-}
 
-fn get_command_prefix<T: Command + ?Sized>(cmd: &T) -> &'static str {
-    match cmd.get_type() {
-        CommandType::DispatchCommand => "dispatch ",
-        CommandType::DirectCommand => "",
+    /// Sets the config variable named `variable` to `value`. Can be used instead of
+    /// [`Self::send_command`] with [`SetConfigValue`].
+    pub async fn set_config_variable(
+        &self,
+        variable: &str,
+        value: &str,
+    ) -> Result<(), CommandError> {
+        check_hyprland_response(
+            self.send_raw_message(format!("keyword {} {}", variable, value).as_str())
+                .await,
+        )
+    }
+
+    /// Blocking variant of [`Self::set_config_variable`].
+    pub fn set_config_variable_sync(
+        &self,
+        variable: &str,
+        value: &str,
+    ) -> Result<(), CommandError> {
+        check_hyprland_response(
+            self.send_raw_message_sync(format!("keyword {} {}", variable, value).as_str()),
+        )
     }
 }
 
 fn get_batch_from_recipe(recipe: &Recipe) -> String {
     let mut full_command = String::from("/[[BATCH]]");
     for command in recipe {
-        full_command.push_str(get_command_prefix(command.deref()));
         full_command.push_str(command.get_command().as_str());
         full_command.push(';');
     }
 
     full_command
+}
+
+fn check_hyprland_response(resp: Result<String, io::Error>) -> Result<(), CommandError> {
+    match resp {
+        Ok(resp) if resp == "ok" => Ok(()),
+        Ok(e) => Err(CommandError::HyprlandError(HyprlandError::new(e))),
+        Err(e) => Err(CommandError::IOError(e)),
+    }
 }
