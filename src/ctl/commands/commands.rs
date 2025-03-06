@@ -133,7 +133,11 @@ impl Command for MoveWindow {
     fn get_command(&self) -> String {
         let silent_str = if self.silent { "silent" } else { "" };
         match &self.what {
-            Either::First(dir) => format!("movewindow {} {}", dir.to_argument_string(), silent_str),
+            Either::First(dir) => format!(
+                "dispatch movewindow {} {}",
+                dir.to_argument_string(),
+                silent_str
+            ),
             Either::Second(mon) => {
                 format!(
                     "dispatch movewindow mon:{} {}",
@@ -147,7 +151,7 @@ impl Command for MoveWindow {
 
 make_command_with_new!(SwapWindow, "dispatch swapwindow", to: DirectionArgument);
 
-make_command_with_new!(CenterWindow, "dispatch centerwindow", with_exclude: BoolArgument);
+make_command_with_new!(CenterWindow, "dispatch centerwindow", with_exclude: bool);
 
 make_command_with_new!(ResizeActiveWindow, "dispatch resizeactive", to: ResizeArgument);
 
@@ -173,21 +177,21 @@ make_command_with_new!(SetSplitRatio, "dispatch splitratio", split: FloatArgumen
 
 make_command_with_new!(MoveCursorToCorner, "dispatch movecursortocorner", which: CornerArgument);
 
-make_command_with_new!(MoveCursor, "dispatch movecursor", x: IntArgument, y: IntArgument);
+make_command_with_new!(MoveCursor, "dispatch movecursor", x: i32, y: i32);
 
-make_command_with_new!(RenameWorkspace, "dispatch renameworkspace", which_id: StringArgument, new_name: StringArgument);
+make_command_with_new!(RenameWorkspace, "dispatch renameworkspace", which_id: String, new_name: String);
 
 make_command_with_new!(ExitHyprland, "dispatch exit",);
 
 make_command_with_new!(ForceRenderReload, "dispatch forcerenderreload",);
 
 pub struct SetConfigValue {
-    variable: StringArgument,
-    value: StringArgument,
+    variable: String,
+    value: String,
 }
 
 impl SetConfigValue {
-    pub fn new(variable: StringArgument, value: StringArgument) -> Self {
+    pub fn new(variable: String, value: String) -> Self {
         SetConfigValue { variable, value }
     }
 }
@@ -204,7 +208,7 @@ impl Command for SetConfigValue {
 
 make_command_with_new!(ReloadConfig, "reload",);
 make_command_with_new!(KillWindowMode, "kill",);
-make_command_with_new!(SetCursorTheme, "setcursor", theme_name: StringArgument, size: IntArgument);
-make_command_with_new!(SetError, "seterror", color: ColorArgument, message: StringArgument);
-make_command_with_new!(Notify, "notify", icon: NotifyIconArgument, time_ms: IntArgument, color: ColorArgument, message: StringArgument);
+make_command_with_new!(SetCursorTheme, "setcursor", theme_name: String, size: i32);
+make_command_with_new!(SetError, "seterror", color: ColorArgument, message: String);
+make_command_with_new!(Notify, "notify", icon: NotifyIconArgument, time_ms: i32, color: ColorArgument, message: String);
 // TODO: implement output, setxkblayout, dismissnotify

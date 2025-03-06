@@ -1,5 +1,4 @@
 use core::fmt;
-use std::ops::Deref;
 
 use super::data::{Monitor, Window, Workspace, WorkspaceBrief};
 
@@ -281,28 +280,13 @@ impl Argument for KeyArgument {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct BoolArgument(bool);
-impl Argument for BoolArgument {
+impl Argument for bool {
     fn to_argument_string(&self) -> String {
-        match self.0 {
-            true => "1".to_string(),
-            false => "0".to_string(),
+        match self {
+            true => "1",
+            false => "0",
         }
-    }
-}
-
-impl From<bool> for BoolArgument {
-    fn from(value: bool) -> Self {
-        BoolArgument(value)
-    }
-}
-
-impl Deref for BoolArgument {
-    type Target = bool;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
+        .to_string()
     }
 }
 
@@ -392,53 +376,15 @@ impl Argument for CornerArgument {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct IntArgument(i32);
-impl Argument for IntArgument {
+impl Argument for i32 {
     fn to_argument_string(&self) -> String {
-        self.0.to_string()
+        self.to_string()
     }
 }
 
-impl From<i32> for IntArgument {
-    fn from(value: i32) -> Self {
-        IntArgument(value)
-    }
-}
-
-impl Deref for IntArgument {
-    type Target = i32;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct StringArgument(String);
-impl Argument for StringArgument {
+impl Argument for String {
     fn to_argument_string(&self) -> String {
-        self.0.clone()
-    }
-}
-
-impl From<String> for StringArgument {
-    fn from(value: String) -> Self {
-        StringArgument(value)
-    }
-}
-
-impl From<StringArgument> for String {
-    fn from(value: StringArgument) -> Self {
-        value.0
-    }
-}
-
-impl Deref for StringArgument {
-    type Target = String;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
+        self.clone()
     }
 }
 
