@@ -24,11 +24,11 @@
 //! ### Module structure
 //!
 //! This crate conatins several modules:
-//!  - `commands`: All implemented commands, but doesn't include arguments.
-//!  - `commands::prelude`: All commands and arguments.
-//!  - `data`: All commands used to request data from Hyprland.
-//!  - `errors`: All errors returned by the API of this library.
-//!  - `events`: Contains everything needed to receive sync and async events and filter them.
+//!  - [`commands`] All implemented commands, but doesn't include arguments.
+//!  - [`commands::prelude`] All commands and arguments.
+//!  - [`data`] All commands used to request data from Hyprland.
+//!  - [`errors`] All errors returned by the API of this library.
+//!  - [`events`] Contains everything needed to receive sync and async events and filter them.
 //!
 //! ### Examples
 //!
