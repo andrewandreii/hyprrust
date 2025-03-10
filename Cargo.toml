@@ -2,6 +2,11 @@
 name = "hyprrust"
 version = "0.1.0"
 edition = "2021"
+license-file = "LICENSE"
+keywords = ["Hyprland", "IPC"]
+description = "A crate that provides an interface with the Hyprland sockets."
+repository = "https://github.com/andrewandreii/hyprrust"
+readme = "README.md"
 
 [features]
 default = ["sync", "async"]
@@ -13,5 +18,5 @@ nix = { version = "0.29.0", default-features = false, features = ["user"] }
 serde = { version = "1.0.217", default-features = false, features = ["derive"] }
 serde_json = "1.0.138"
 tokio = { version = "1.43.0", default-features = false, features = ["rt", "rt-multi-thread", "net", "time", "macros", "sync", "io-util"], optional = true }
-hyprrust_macros = { path = "../hyprrust_macros" }
+hyprrust_macros = { path = "../hyprrust_macros", version = "0.1.0" }
 log = { version = "0.4.26", features = ["kv"] }
