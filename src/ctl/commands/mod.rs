@@ -3,9 +3,9 @@ use std::io;
 use crate::connection::HyprlandConnection;
 use crate::errors::{CommandError, HyprlandError};
 
-mod commands;
+mod all_commands;
 use super::arguments::*;
-pub use commands::*;
+pub use all_commands::*;
 
 /// A vector of commands
 pub type Recipe = Vec<Box<dyn Command>>;

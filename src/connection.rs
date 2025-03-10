@@ -6,26 +6,13 @@ use std::{env, io, path::PathBuf};
 #[cfg(feature = "async")]
 use tokio::task::AbortHandle;
 
-#[cfg(feature = "async")]
-use tokio::sync::broadcast;
-
-#[cfg(feature = "async")]
-use crate::events::HyprlandEvent;
-
-#[cfg(feature = "async")]
-#[derive(Debug)]
-pub(crate) struct EventConnection {
-    pub abort_handle: AbortHandle,
-    pub receiver: broadcast::Receiver<HyprlandEvent>,
-}
-
 /// Represents a connection to Hyprland, it can be used to start an event listener or to send
 /// commands to Hyprland
 #[derive(Debug)]
 pub struct HyprlandConnection {
     instance: String,
     #[cfg(feature = "async")]
-    pub(crate) event_connection: Option<EventConnection>,
+    pub(crate) event_handle: Option<AbortHandle>,
 }
 
 impl HyprlandConnection {
@@ -47,7 +34,7 @@ impl HyprlandConnection {
         HyprlandConnection {
             instance,
             #[cfg(feature = "async")]
-            event_connection: None,
+            event_handle: None,
         }
     }
 
