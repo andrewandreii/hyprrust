@@ -17,7 +17,7 @@ async fn main() {
     .iter()
     .collect::<EventFilter>();
 
-    // Set the filter so it includes everything besides what was in the list
+    // Set the filter so it includes everything except what was in the list
     filter.set_include(false);
 
     let mut rx = conn.listen_to_events(Some(filter)).await.unwrap();

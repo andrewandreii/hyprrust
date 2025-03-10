@@ -1,10 +1,9 @@
-#![feature(never_type)]
 use hyprrust::HyprlandConnection;
 
 // A sync version of events is not yet available
 
 #[tokio::main]
-async fn main() -> ! {
+async fn main() {
     let mut conn = HyprlandConnection::new();
 
     // Make sure you don't wait for IO
@@ -14,8 +13,11 @@ async fn main() -> ! {
         match conn.listen_to_events(None).await {
             Ok(mut rx) => {
                 // See hyprrust::ctl::data for events
-                while let Ok(ev) = rx.recv().await {
-                    println!("Got {:?}", ev);
+                loop {
+                    match rx.recv().await {
+                        Ok(ev) => println!("Got {:?}", ev),
+                        Err(e) => println!("err: {}", e),
+                    }
                 }
             }
             Err(e) => {
