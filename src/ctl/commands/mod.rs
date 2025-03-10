@@ -7,24 +7,6 @@ mod all_commands;
 use super::arguments::*;
 pub use all_commands::*;
 
-/// A vector of commands
-pub type Recipe = Vec<Box<dyn Command>>;
-/// Creates a Recipe (`Vec<Box<dyn Command>>`). Just a shorthand so that you don't have to call
-/// `Box::new`
-#[macro_export]
-macro_rules! recipe {
-    [] => {
-        vec![];
-    };
-    [$elem:expr; $n:expr] => {
-        vec![$elem; $n];
-    };
-    [$($cmd:expr),* $(,)?] => {
-        vec![$(Box::new($cmd)),*]
-    };
-}
-pub use recipe;
-
 impl HyprlandConnection {
     /// Send a dispatch command to Hyprland.
     ///
@@ -32,20 +14,20 @@ impl HyprlandConnection {
     #[doc = include_str!("../../../examples/simple_command.rs")]
     /// ```
     #[cfg(feature = "async")]
-    pub async fn send_command<T: Command + ?Sized>(&self, command: &T) -> Result<(), CommandError> {
-        check_hyprland_response(self.send_raw_message(command.get_command().as_str()).await)
+    pub async fn send_command(&self, command: &Command) -> Result<(), CommandError> {
+        check_hyprland_response(self.send_raw_message(command.get_command()).await)
     }
 
     /// The blocking counterpart of [`Self::send_command`].
     #[cfg(feature = "sync")]
-    pub fn send_command_sync<T: Command + ?Sized>(&self, command: &T) -> Result<(), CommandError> {
-        check_hyprland_response(self.send_raw_message_sync(command.get_command().as_str()))
+    pub fn send_command_sync(&self, command: &Command) -> Result<(), CommandError> {
+        check_hyprland_response(self.send_raw_message_sync(command.get_command()))
     }
 
     /// Sends a list of commands to the socket at once. This is faster than sending each command
     /// separately.
     #[cfg(feature = "async")]
-    pub async fn send_recipe(&self, recipe: &Recipe) -> Result<(), Vec<CommandError>> {
+    pub async fn send_recipe(&self, recipe: &[Command]) -> Result<(), Vec<CommandError>> {
         let resp = self
             .send_raw_message(get_batch_from_recipe(recipe).as_str())
             .await;
@@ -69,7 +51,7 @@ impl HyprlandConnection {
 
     /// The blocking counterpart of [`Self::send_recipe`].
     #[cfg(feature = "sync")]
-    pub fn send_recipe_sync(&self, recipe: &Recipe) -> Result<(), Vec<CommandError>> {
+    pub fn send_recipe_sync(&self, recipe: &[Command]) -> Result<(), Vec<CommandError>> {
         let resp = self.send_raw_message_sync(get_batch_from_recipe(recipe).as_str());
 
         match resp {
@@ -114,10 +96,10 @@ impl HyprlandConnection {
     }
 }
 
-fn get_batch_from_recipe(recipe: &Recipe) -> String {
+fn get_batch_from_recipe(recipe: &[Command]) -> String {
     let mut full_command = String::from("/[[BATCH]]");
     for command in recipe {
-        full_command.push_str(command.get_command().as_str());
+        full_command.push_str(command.get_command());
         full_command.push(';');
     }
 

@@ -7,7 +7,7 @@ use hyprrust::HyprlandConnection;
 async fn main() -> Result<(), Box<dyn Error>> {
     let conn = HyprlandConnection::new();
 
-    let command = SetFloating::new(WindowArgument::Tiled);
+    let command = set_floating(WindowArgument::Tiled);
 
     conn.send_command(&command).await?;
     println!("sucessful");

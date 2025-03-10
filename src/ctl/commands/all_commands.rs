@@ -1,26 +1,15 @@
 #![allow(clippy::new_without_default)]
 
+use std::borrow::Cow;
+
 use super::*;
 use crate::ctl::data::FullscreenState;
 
-pub trait Command {
-    fn get_command(&self) -> String;
-}
-
-macro_rules! make_command_with_new {
-    ($name:ident, $strname:expr, $($field:ident: $type:ty),*) => {
-        make_command_with_new!($name, $strname, " ", $($field: $type),*);
-    };
-    ($name:ident, $strname:expr, $sep:expr, $($field:ident: $type:ty),*) => {
-        make_command!($name, $strname, $sep, $($field: $type),*);
-        impl $name {
-            pub fn new($($field: $type),*) -> Self {
-                $name {
-                    $($field),*
-                }
-            }
-        }
-    };
+pub struct Command(Cow<'static, str>);
+impl Command {
+    pub fn get_command(&self) -> &str {
+        &self.0
+    }
 }
 
 macro_rules! make_command {
@@ -28,23 +17,15 @@ macro_rules! make_command {
         make_command!($name, $strname, " ", $($field: $type),*);
     };
     ($name:ident, $strname:expr, $sep:expr, $($field:ident: $type:ty),*) => {
-        #[derive(Debug)]
-        pub struct $name {
-            $($field: $type),*
-        }
-        impl Command for $name {
-            fn get_command(&self) -> String {
-                let args_string = "".to_string() $(+ self.$field.to_argument_string().as_str() + $sep)*;
-                format!(concat!($strname, " {}"), &args_string.as_str()[..args_string.len() - $sep.len()])
-            }
+        pub fn $name($($field: $type),*) -> Command {
+            let args_string = "".to_string() $(+ $field.to_argument_string().as_str() + $sep)*;
+            let cmd = format!(concat!($strname, " {}"), &args_string.as_str()[..args_string.len() - $sep.len()]);
+            Command(Cow::Owned(cmd))
         }
     };
     ($name:ident, $strname:expr) => {
-        pub struct $name;
-        impl Command for $name {
-            fn get_command(&self) -> String {
-                $strname.to_string()
-            }
+        pub fn $name() -> Command {
+            Command(Cow::Borrowed($strname))
         }
     };
 }
@@ -53,35 +34,35 @@ macro_rules! make_command {
 // There are some slight variations, but the naming is approximately the same
 
 // TODO: implement exec
-make_command_with_new!(Pass, "dispatch pass", to: WindowArgument);
+make_command!(pass, "dispatch pass", to: WindowArgument);
 
-make_command_with_new!(SendShortcut, "dispatch sendshortcut", modifier: ModArgument, key: KeyArgument, window: WindowArgument);
+make_command!(send_shortcut, "dispatch sendshortcut", modifier: ModArgument, key: KeyArgument, window: WindowArgument);
 
-make_command!(KillActive, "dispatch killactive");
+make_command!(kill_active, "dispatch killactive");
 
-make_command!(ForceKillActive, "dispatch forcekillactive");
+make_command!(force_kill_active, "dispatch forcekillactive");
 
-make_command_with_new!(CloseWindow, "dispatch closewindow", which: WindowArgument);
+make_command!(close_window, "dispatch closewindow", which: WindowArgument);
 
-make_command_with_new!(KillWindow, "dispatch killwindow", which: WindowArgument);
+make_command!(kill_window, "dispatch killwindow", which: WindowArgument);
 
 // TODO: implement signal
 
-make_command_with_new!(GoToWorkSpace, "dispatch workspace", to: WorkspaceArgument);
+make_command!(go_to_work_space, "dispatch workspace", to: WorkspaceArgument);
 
-make_command_with_new!(MoveToWorkspace, "dispatch movetoworkspace", to: WorkspaceArgument, which: WindowArgument);
+make_command!(move_to_workspace, "dispatch movetoworkspace", to: WorkspaceArgument, which: WindowArgument);
 
-make_command_with_new!(MoveToWorkspaceSilent, "dispatch movetoworkspacesilent", to: WorkspaceArgument, which: WindowArgument);
+make_command!(move_to_workspace_silent, "dispatch movetoworkspacesilent", to: WorkspaceArgument, which: WindowArgument);
 
-make_command_with_new!(ToggleFloating, "dispatch togglefloating", which: WindowArgument);
+make_command!(toggle_floating, "dispatch togglefloating", which: WindowArgument);
 
-make_command_with_new!(SetFloating, "dispatch setfloating", which: WindowArgument);
+make_command!(set_floating, "dispatch setfloating", which: WindowArgument);
 
-make_command_with_new!(SetTiled, "dispatch settiled", which: WindowArgument);
+make_command!(set_tiled, "dispatch settiled", which: WindowArgument);
 
-make_command!(Fullscreen, "dispatch fullscreen 0");
+make_command!(fullscreen, "dispatch fullscreen 0");
 
-make_command!(FullscreenMaximize, "dispatch fullscreen 1");
+make_command!(fullscreen_maximize, "dispatch fullscreen 1");
 
 impl Argument for FullscreenState {
     fn to_argument_string(&self) -> String {
@@ -94,121 +75,71 @@ impl Argument for FullscreenState {
         .to_string()
     }
 }
-make_command_with_new!(SetFullscreenState, "dispatch fullscreenstate", internal: FullscreenState, client: FullscreenState);
+make_command!(set_fullscreen_state, "dispatch fullscreenstate", internal: FullscreenState, client: FullscreenState);
 
 // TODO: implement dpms
 
-make_command_with_new!(PinWindow, "dispatch pin", which: WindowArgument);
+make_command!(pin_window, "dispatch pin", which: WindowArgument);
 
-make_command_with_new!(MoveFocus, "dispatch movefocus", to: DirectionArgument);
+make_command!(move_focus, "dispatch movefocus", to: DirectionArgument);
 
-#[derive(Debug)]
-pub enum Either<T, U> {
-    First(T),
-    Second(U),
+pub fn move_window_in_direction(direction: DirectionArgument, silent: bool) -> Command {
+    Command(Cow::Owned(format!(
+        "dispatch movewindow {} {}",
+        direction.to_argument_string(),
+        if silent { "silent" } else { "" }
+    )))
 }
 
-#[derive(Debug)]
-pub struct MoveWindow {
-    what: Either<DirectionArgument, MonitorArgument>,
-    silent: bool,
+pub fn move_window_to_monitor(monitor: MonitorArgument, silent: bool) -> Command {
+    Command(Cow::Owned(format!(
+        "dispatch movewindow {} {}",
+        monitor.to_argument_string(),
+        if silent { "silent" } else { "" }
+    )))
 }
 
-impl MoveWindow {
-    pub fn with_direction(direction: DirectionArgument, silent: bool) -> Self {
-        MoveWindow {
-            what: Either::First(direction),
-            silent,
-        }
-    }
+make_command!(swap_window, "dispatch swapwindow", to: DirectionArgument);
 
-    pub fn with_monitor(monitor: MonitorArgument, silent: bool) -> Self {
-        MoveWindow {
-            what: Either::Second(monitor),
-            silent,
-        }
-    }
-}
-impl Command for MoveWindow {
-    fn get_command(&self) -> String {
-        let silent_str = if self.silent { "silent" } else { "" };
-        match &self.what {
-            Either::First(dir) => format!(
-                "dispatch movewindow {} {}",
-                dir.to_argument_string(),
-                silent_str
-            ),
-            Either::Second(mon) => {
-                format!(
-                    "dispatch movewindow mon:{} {}",
-                    mon.to_argument_string(),
-                    silent_str
-                )
-            }
-        }
-    }
-}
+make_command!(center_window, "dispatch centerwindow", with_exclude: bool);
 
-make_command_with_new!(SwapWindow, "dispatch swapwindow", to: DirectionArgument);
+make_command!(resize_active_window, "dispatch resizeactive", to: ResizeArgument);
 
-make_command_with_new!(CenterWindow, "dispatch centerwindow", with_exclude: bool);
+make_command!(move_active_window, "dispatch moveactive", to: ResizeArgument);
 
-make_command_with_new!(ResizeActiveWindow, "dispatch resizeactive", to: ResizeArgument);
+make_command!(resize_window, "dispatch resizewindowpixel", ",", to: ResizeArgument, which: WindowArgument);
 
-make_command_with_new!(MoveActiveWindow, "dispatch moveactive", to: ResizeArgument);
+make_command!(move_window_by, "dispatch movewindowpixel", ",", by: ResizeArgument, which: WindowArgument);
 
-make_command_with_new!(ResizeWindow, "dispatch resizewindowpixel", ",", to: ResizeArgument, which: WindowArgument);
+make_command!(cycle_next, "dispatch cyclenext", options: CycleNextArguments);
 
-make_command_with_new!(MoveWindowBy, "dispatch movewindowpixel", ",", by: ResizeArgument, which: WindowArgument);
+make_command!(swap_with_next, "dispatch swapnext");
 
-make_command_with_new!(CycleNext, "dispatch cyclenext", options: CycleNextArguments);
+make_command!(swap_with_prev, "dispatch swapnext prev");
 
-make_command!(SwapWithNext, "dispatch swapnext");
+make_command!(tag_window, "dispatch tagwindow", tag: TagArgument, which: WindowArgument);
 
-make_command!(SwapWithPrev, "dispatch swapnext prev");
+make_command!(focus_window, "dispatch focuswindow", which: WindowArgument);
 
-make_command_with_new!(TagWindow, "dispatch tagwindow", tag: TagArgument, which: WindowArgument);
+make_command!(focus_monitor, "dispatch focusmonitor", which: MonitorArgument);
 
-make_command_with_new!(FocusWindow, "dispatch focuswindow", which: WindowArgument);
+make_command!(set_split_ratio, "dispatch splitratio", split: FloatArgument);
 
-make_command_with_new!(FocusMonitor, "dispatch focusmonitor", which: MonitorArgument);
+make_command!(move_cursor_to_corner, "dispatch movecursortocorner", which: CornerArgument);
 
-make_command_with_new!(SetSplitRatio, "dispatch splitratio", split: FloatArgument);
+make_command!(move_cursor, "dispatch movecursor", x: i32, y: i32);
 
-make_command_with_new!(MoveCursorToCorner, "dispatch movecursortocorner", which: CornerArgument);
+make_command!(rename_workspace, "dispatch renameworkspace", which_id: String, new_name: String);
 
-make_command_with_new!(MoveCursor, "dispatch movecursor", x: i32, y: i32);
+make_command!(exit_hyprland, "dispatch exit",);
 
-make_command_with_new!(RenameWorkspace, "dispatch renameworkspace", which_id: String, new_name: String);
+make_command!(force_render_reload, "dispatch forcerenderreload",);
 
-make_command_with_new!(ExitHyprland, "dispatch exit",);
+make_command!(set_config_value, "", variable: String, value: String);
 
-make_command_with_new!(ForceRenderReload, "dispatch forcerenderreload",);
-
-pub struct SetConfigValue {
-    variable: String,
-    value: String,
-}
-
-impl SetConfigValue {
-    pub fn new(variable: String, value: String) -> Self {
-        SetConfigValue { variable, value }
-    }
-}
-
-impl Command for SetConfigValue {
-    fn get_command(&self) -> String {
-        format!(
-            "keyword {} {}",
-            self.variable.to_argument_string(),
-            self.value.to_argument_string()
-        )
-    }
-}
-
-make_command_with_new!(ReloadConfig, "reload",);
-make_command_with_new!(KillWindowMode, "kill",);
-make_command_with_new!(SetCursorTheme, "setcursor", theme_name: String, size: i32);
-make_command_with_new!(SetError, "seterror", color: ColorArgument, message: String);
-make_command_with_new!(Notify, "notify", icon: NotifyIconArgument, time_ms: i32, color: ColorArgument, message: String);
+make_command!(reload_config, "reload",);
+make_command!(kill_window_mode, "kill",);
+make_command!(set_cursor_theme, "setcursor", theme_name: String, size: i32);
+make_command!(set_error, "seterror", color: ColorArgument, message: String);
+make_command!(notify, "notify", icon: NotifyIconArgument, time_ms: i32, color: ColorArgument, message: String);
 // TODO: implement output, setxkblayout, dismissnotify

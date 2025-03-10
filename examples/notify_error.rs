@@ -1,6 +1,6 @@
 use hyprrust::{
-    arguments::{ColorArgument, NotifyIconArgument},
-    commands::{FocusWindow, Notify, SetError},
+    arguments::{ColorArgument, NotifyIconArgument, WindowArgument},
+    commands::*,
     data::Window,
     HyprlandConnection,
 };
@@ -15,19 +15,17 @@ fn main() {
     }
     let fav_window: String = args[1].to_string();
 
-    conn.send_command_sync(&FocusWindow::new(
-        hyprrust::arguments::WindowArgument::Class(fav_window.clone()),
-    ))
-    .unwrap();
+    conn.send_command_sync(&focus_window(WindowArgument::Class(fav_window.clone())))
+        .unwrap();
 
     if conn.get_sync::<Window>().unwrap().class != fav_window {
-        conn.send_command_sync(&SetError::new(
+        conn.send_command_sync(&set_error(
             ColorArgument::new(255, 40, 40, 255),
             "Could not focus your favourite window.".to_string(),
         ))
         .unwrap();
     } else {
-        conn.send_command_sync(&Notify::new(
+        conn.send_command_sync(&notify(
             NotifyIconArgument::Ok,
             10000,
             ColorArgument::new(40, 200, 120, 255),
