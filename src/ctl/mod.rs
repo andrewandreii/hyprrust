@@ -1,5 +1,8 @@
-use std::io::{self, Read, Write};
+use std::io;
+#[cfg(feature = "sync")]
+use std::io::{Read, Write};
 
+#[cfg(feature = "sync")]
 use std::os::unix::net::UnixStream as SyncUnixStream;
 
 #[cfg(feature = "async")]

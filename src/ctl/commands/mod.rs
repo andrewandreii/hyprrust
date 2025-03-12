@@ -79,6 +79,7 @@ impl HyprlandConnection {
 
     /// Sets the config variable named `variable` to `value`. Can be used instead of
     /// [`Self::send_command`] with [`set_config_value`].
+    #[cfg(feature = "async")]
     pub async fn set_config_value(&self, variable: &str, value: &str) -> Result<(), CommandError> {
         check_hyprland_response(
             self.send_raw_message(format!("keyword {} {}", variable, value).as_str())
@@ -87,6 +88,7 @@ impl HyprlandConnection {
     }
 
     /// Blocking variant of [`Self::set_config_value`].
+    #[cfg(feature = "sync")]
     pub fn set_config_value_sync(&self, variable: &str, value: &str) -> Result<(), CommandError> {
         check_hyprland_response(
             self.send_raw_message_sync(format!("keyword {} {}", variable, value).as_str()),
