@@ -79,7 +79,7 @@ mod data_tests {
     #[test]
     fn test_data_models() {
         use super::data_models::*;
-        let conn = HyprlandConnection::new();
+        let conn = HyprlandConnection::current().unwrap();
 
         assert!(conn.get_sync::<Version>().is_ok());
         assert!(conn.get_sync::<Monitors>().is_ok());

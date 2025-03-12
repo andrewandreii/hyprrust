@@ -4,7 +4,7 @@ use hyprrust::data::*;
 use hyprrust::HyprlandConnection;
 
 fn main() -> Result<(), io::Error> {
-    let conn = HyprlandConnection::new();
+    let conn = HyprlandConnection::current().unwrap();
 
     println!(
         "Hyprland version: {:?}",

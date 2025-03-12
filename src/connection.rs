@@ -17,20 +17,14 @@ pub struct HyprlandConnection {
 
 impl HyprlandConnection {
     /// Creates a new `HyprlandConnection` object using the current running instance
-    ///
-    /// # Panics
-    ///
-    /// This function panics if it cannot get the current running hyprland instance from the
-    /// environmental variable HYPRLAND_INSTANCE_SIGNATURE
-    pub fn new() -> HyprlandConnection {
-        HyprlandConnection::new_with_instance(
-            HyprlandConnection::get_current_instance()
-                .expect("HYPRLAND_INSTANCE_SIGNATURE not found. Is Hyprland running?"),
-        )
+    pub fn current() -> Result<HyprlandConnection, VarError> {
+        Ok(HyprlandConnection::new(
+            HyprlandConnection::get_current_instance()?,
+        ))
     }
 
     /// Creates a new instance with the specified instance. Does not check if instance is valid
-    pub fn new_with_instance(instance: String) -> HyprlandConnection {
+    pub fn new(instance: String) -> HyprlandConnection {
         HyprlandConnection {
             instance,
             #[cfg(feature = "async")]
@@ -95,11 +89,5 @@ impl HyprlandConnection {
     #[allow(clippy::needless_question_mark)]
     pub(crate) fn get_ctl_socket_path(&self) -> Result<PathBuf, io::Error> {
         Ok(self.get_socket_path(".socket.sock")?)
-    }
-}
-
-impl Default for HyprlandConnection {
-    fn default() -> Self {
-        Self::new()
     }
 }

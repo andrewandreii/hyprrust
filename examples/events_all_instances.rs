@@ -11,7 +11,7 @@ async fn main() {
     // Create connections for each of them
     let connections = instances
         .iter()
-        .map(|inst| HyprlandConnection::new_with_instance(inst.clone()));
+        .map(|inst| HyprlandConnection::new(inst.clone()));
 
     let mut conn_num = 0;
     for mut conn in connections {

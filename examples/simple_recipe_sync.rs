@@ -2,7 +2,7 @@ use hyprrust::commands::prelude::*;
 use hyprrust::HyprlandConnection;
 
 fn main() {
-    let conn = HyprlandConnection::new();
+    let conn = HyprlandConnection::current().unwrap();
 
     // make the current window 400x400, place it in the top right corner and pin it
     let commands = [

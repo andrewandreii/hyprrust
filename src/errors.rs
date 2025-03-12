@@ -9,7 +9,7 @@ pub struct HyprlandError {
 }
 
 impl HyprlandError {
-    pub fn new(message: String) -> Self {
+    pub(crate) fn new(message: String) -> Self {
         HyprlandError { message }
     }
 }

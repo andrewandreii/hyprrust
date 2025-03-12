@@ -4,7 +4,7 @@ use hyprrust::{events::EventFilter, HyprlandConnection};
 
 #[tokio::main]
 async fn main() {
-    let mut conn = HyprlandConnection::new();
+    let mut conn = HyprlandConnection::current().unwrap();
 
     // Make sure you don't wait for IO
     tokio::spawn(async move {

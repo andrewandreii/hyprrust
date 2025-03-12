@@ -14,7 +14,7 @@ async fn simple_listener(task_num: i32, mut rx: broadcast::Receiver<HyprlandEven
 
 #[tokio::main]
 async fn main() {
-    let mut conn = HyprlandConnection::new();
+    let mut conn = HyprlandConnection::current().unwrap();
 
     let rx = conn
         .listen_to_events(EventFilter::new_include_all())

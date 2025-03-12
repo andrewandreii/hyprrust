@@ -4,7 +4,7 @@ use hyprrust::{
 };
 
 fn main() {
-    let conn = HyprlandConnection::new();
+    let conn = HyprlandConnection::current().unwrap();
     let ev_conn =
         DetachedEventConnection::from_connection(conn, EventFilter::new_include_all()).unwrap();
 

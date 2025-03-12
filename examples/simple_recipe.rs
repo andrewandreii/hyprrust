@@ -3,7 +3,7 @@ use hyprrust::HyprlandConnection;
 
 #[tokio::main]
 async fn main() {
-    let conn = HyprlandConnection::new();
+    let conn = HyprlandConnection::current().unwrap();
 
     // make the current window 400x400, place it in the top right corner and pin it
     let commands = [

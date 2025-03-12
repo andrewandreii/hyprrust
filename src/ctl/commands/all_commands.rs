@@ -24,7 +24,7 @@ impl Command {
 ///
 /// make_command!(execr, "dispatch execr", cmd: String);
 ///
-/// let conn = HyprlandConnection::new();
+/// let conn = HyprlandConnection::current().unwrap();
 /// conn.send_command_sync(&execr("kitty".to_string())).unwrap();
 /// ```
 #[macro_export]

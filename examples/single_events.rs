@@ -6,7 +6,7 @@ use hyprrust::{
 
 #[tokio::main]
 async fn main() {
-    let conn = HyprlandConnection::new();
+    let conn = HyprlandConnection::current().unwrap();
     let mut ev_conn =
         DetachedEventConnection::from_connection(conn, EventFilter::new_include_all())
             .await

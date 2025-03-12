@@ -5,7 +5,7 @@ use hyprrust::HyprlandConnection;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let conn = HyprlandConnection::new();
+    let conn = HyprlandConnection::current().unwrap();
 
     let command = set_floating(WindowArgument::Tiled);
 

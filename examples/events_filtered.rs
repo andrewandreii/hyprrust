@@ -3,7 +3,7 @@ use hyprrust::HyprlandConnection;
 
 #[tokio::main]
 async fn main() {
-    let mut conn = HyprlandConnection::new();
+    let mut conn = HyprlandConnection::current().unwrap();
 
     // This filter includes everything present in the list
     let mut filter = [

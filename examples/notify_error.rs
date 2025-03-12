@@ -6,7 +6,7 @@ use hyprrust::{
 };
 
 fn main() {
-    let conn = HyprlandConnection::new();
+    let conn = HyprlandConnection::current().unwrap();
 
     let args = std::env::args().collect::<Vec<_>>();
     if args.len() < 2 {

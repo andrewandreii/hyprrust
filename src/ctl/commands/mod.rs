@@ -72,24 +72,16 @@ impl HyprlandConnection {
     }
 
     /// Sets the config variable named `variable` to `value`. Can be used instead of
-    /// [`Self::send_command`] with [`SetConfigValue`].
-    pub async fn set_config_variable(
-        &self,
-        variable: &str,
-        value: &str,
-    ) -> Result<(), CommandError> {
+    /// [`Self::send_command`] with [`set_config_value`].
+    pub async fn set_config_value(&self, variable: &str, value: &str) -> Result<(), CommandError> {
         check_hyprland_response(
             self.send_raw_message(format!("keyword {} {}", variable, value).as_str())
                 .await,
         )
     }
 
-    /// Blocking variant of [`Self::set_config_variable`].
-    pub fn set_config_variable_sync(
-        &self,
-        variable: &str,
-        value: &str,
-    ) -> Result<(), CommandError> {
+    /// Blocking variant of [`Self::set_config_value`].
+    pub fn set_config_value_sync(&self, variable: &str, value: &str) -> Result<(), CommandError> {
         check_hyprland_response(
             self.send_raw_message_sync(format!("keyword {} {}", variable, value).as_str()),
         )
