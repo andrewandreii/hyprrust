@@ -27,7 +27,10 @@ impl HyprlandConnection {
     /// Sends a list of commands to the socket at once. This is faster than sending each command
     /// separately.
     #[cfg(feature = "async")]
-    pub async fn send_recipe(&self, recipe: &[Command]) -> Result<(), Vec<CommandError>> {
+    pub async fn send_recipe<'a, T>(&self, recipe: T) -> Result<(), Vec<CommandError>>
+    where
+        T: IntoIterator<Item = &'a Command>,
+    {
         let resp = self
             .send_raw_message(get_batch_from_recipe(recipe).as_str())
             .await;
@@ -51,7 +54,10 @@ impl HyprlandConnection {
 
     /// The blocking counterpart of [`Self::send_recipe`].
     #[cfg(feature = "sync")]
-    pub fn send_recipe_sync(&self, recipe: &[Command]) -> Result<(), Vec<CommandError>> {
+    pub fn send_recipe_sync<'a, T>(&self, recipe: T) -> Result<(), Vec<CommandError>>
+    where
+        T: IntoIterator<Item = &'a Command>,
+    {
         let resp = self.send_raw_message_sync(get_batch_from_recipe(recipe).as_str());
 
         match resp {
@@ -88,7 +94,10 @@ impl HyprlandConnection {
     }
 }
 
-fn get_batch_from_recipe(recipe: &[Command]) -> String {
+fn get_batch_from_recipe<'a, T>(recipe: T) -> String
+where
+    T: IntoIterator<Item = &'a Command>,
+{
     let mut full_command = String::from("/[[BATCH]]");
     for command in recipe {
         full_command.push_str(command.get_command());
