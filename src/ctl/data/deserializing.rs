@@ -1,5 +1,5 @@
 use super::data_models::{FullscreenState, Layer, Levels, Sides};
-use serde::de::{Error, Visitor};
+use serde::de::{DeserializeOwned, Error, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
 
@@ -20,11 +20,11 @@ impl<'de> Deserialize<'de> for FullscreenState {
     }
 }
 
-pub trait HyprlandData {
+pub trait HyprlandData: DeserializeOwned {
     fn get_command() -> &'static str;
 }
 
-pub trait HyprlandDataWithArgument {
+pub trait HyprlandDataWithArgument: DeserializeOwned {
     fn get_command(arg: String) -> String;
 }
 

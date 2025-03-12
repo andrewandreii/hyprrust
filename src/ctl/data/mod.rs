@@ -4,7 +4,6 @@ mod deserializing;
 
 use crate::connection::HyprlandConnection;
 pub use deserializing::{HyprlandData, HyprlandDataWithArgument};
-use serde::de::DeserializeOwned;
 
 use std::io;
 
@@ -17,7 +16,7 @@ impl HyprlandConnection {
     #[cfg(feature = "async")]
     pub async fn get<T>(&self) -> Result<T, io::Error>
     where
-        T: HyprlandData + DeserializeOwned,
+        T: HyprlandData,
     {
         let command = format!("-j/{}", T::get_command());
         let resp = self.send_raw_message(command.as_str()).await?;
@@ -34,7 +33,7 @@ impl HyprlandConnection {
     #[cfg(feature = "async")]
     pub async fn get_with_argument<T>(&self, arg: String) -> Result<T, io::Error>
     where
-        T: HyprlandDataWithArgument + DeserializeOwned,
+        T: HyprlandDataWithArgument,
     {
         let command = format!("-j/{}", T::get_command(arg));
         let resp = self.send_raw_message(command.as_str()).await?;
@@ -49,7 +48,7 @@ impl HyprlandConnection {
     #[cfg(feature = "sync")]
     pub fn get_sync<T>(&self) -> Result<T, io::Error>
     where
-        T: HyprlandData + DeserializeOwned,
+        T: HyprlandData,
     {
         let command = format!("-j/{}", T::get_command());
         let resp = self.send_raw_message_sync(command.as_str())?;
@@ -64,7 +63,7 @@ impl HyprlandConnection {
     #[cfg(feature = "sync")]
     pub fn get_with_argument_sync<T>(&self, arg: String) -> Result<T, io::Error>
     where
-        T: HyprlandDataWithArgument + DeserializeOwned,
+        T: HyprlandDataWithArgument,
     {
         let command = format!("-j/{}", T::get_command(arg));
         let resp = self.send_raw_message_sync(command.as_str())?;
