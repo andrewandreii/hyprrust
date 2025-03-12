@@ -14,37 +14,37 @@ pub struct DetachedEventConnection {
     filter: EventFilter,
 }
 
+impl Iterator for DetachedEventConnection {
+    type Item = Result<HyprlandEvent, io::Error>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut buf = String::with_capacity(1024);
+        match self.socket.read_line(&mut buf) {
+            Ok(len) => {
+                let event = parse_event(&buf[..len], &self.filter);
+                if let Ok(event) = event {
+                    Some(Ok(event))
+                } else {
+                    None
+                }
+            }
+            Err(e) => Some(Err(e)),
+        }
+    }
+}
+
 impl DetachedEventConnection {
     /// Connects to the event socket of the HyprlandConnection and applies the filter when
     /// listening for events.
     pub fn from_connection(
         conn: HyprlandConnection,
-        filter: Option<EventFilter>,
+        filter: EventFilter,
     ) -> Result<Self, io::Error> {
         let path = conn.get_event_socket_path()?;
-
-        let filter = filter.unwrap_or_else(EventFilter::new_include_all);
 
         Ok(DetachedEventConnection {
             socket: BufReader::new(UnixStream::connect(path)?),
             filter,
         })
-    }
-
-    /// Returns the next event that gets sent over the socket.
-    pub fn next_event(&mut self) -> Result<HyprlandEvent, io::Error> {
-        loop {
-            let mut buf = String::with_capacity(1024);
-            match self.socket.read_line(&mut buf) {
-                Ok(len) => {
-                    if let Ok(event) = parse_event(&buf[..len], &self.filter) {
-                        return Ok(event);
-                    }
-                }
-                Err(e) => {
-                    return Err(e);
-                }
-            }
-        }
     }
 }

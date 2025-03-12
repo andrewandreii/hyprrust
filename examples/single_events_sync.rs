@@ -5,11 +5,10 @@ use hyprrust::{
 
 fn main() {
     let conn = HyprlandConnection::new();
-    let mut ev_conn =
-        DetachedEventConnection::from_connection(conn, Some(EventFilter::new_include_all()))
-            .unwrap();
+    let ev_conn =
+        DetachedEventConnection::from_connection(conn, EventFilter::new_include_all()).unwrap();
 
-    while let Ok(ev) = ev_conn.next_event() {
+    for ev in ev_conn {
         println!("{:?}", ev);
     }
 }
