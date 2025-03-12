@@ -1,4 +1,4 @@
-use hyprrust::HyprlandConnection;
+use hyprrust::{events::EventFilter, HyprlandConnection};
 
 // A sync version of events is not yet available
 
@@ -10,7 +10,7 @@ async fn main() {
     tokio::spawn(async move {
         // If everything went ok, we get a Receiver
         // which will return events if they occur
-        match conn.listen_to_events(None).await {
+        match conn.listen_to_events(EventFilter::new_include_all()).await {
             Ok(mut rx) => {
                 // See hyprrust::ctl::data for events
                 loop {

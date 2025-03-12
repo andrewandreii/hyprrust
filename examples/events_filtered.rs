@@ -20,7 +20,7 @@ async fn main() {
     // Set the filter so it includes everything except what was in the list
     filter.set_include(false);
 
-    let mut rx = conn.listen_to_events(Some(filter)).await.unwrap();
+    let mut rx = conn.listen_to_events(filter).await.unwrap();
     while let Ok(ev) = rx.recv().await {
         println!("got {:?}", ev);
     }

@@ -19,7 +19,7 @@ impl HyprlandConnection {
     /// [`stop_listening`]: #method.stop_listening
     pub async fn listen_to_events(
         &mut self,
-        filter: Option<EventFilter>,
+        filter: EventFilter,
     ) -> Result<broadcast::Receiver<HyprlandEvent>, io::Error> {
         if self.event_handle.is_some() {
             self.stop_listening();
@@ -29,8 +29,6 @@ impl HyprlandConnection {
         let socket = UnixStream::connect(path).await?;
 
         let (tx, rx) = broadcast::channel(64);
-
-        let filter = filter.unwrap_or_else(EventFilter::new_include_all);
 
         let abort_handle = tokio::spawn(async move {
             'main_loop: loop {

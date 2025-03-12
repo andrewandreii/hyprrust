@@ -1,7 +1,7 @@
 /// Listens to all instances of hyprland and reports their events in the console
 use std::io;
 
-use hyprrust::*;
+use hyprrust::{events::EventFilter, *};
 
 #[tokio::main]
 async fn main() {
@@ -16,7 +16,10 @@ async fn main() {
     let mut conn_num = 0;
     for mut conn in connections {
         // Start listener tasks for each connection
-        let mut rx = conn.listen_to_events(None).await.unwrap();
+        let mut rx = conn
+            .listen_to_events(EventFilter::new_include_all())
+            .await
+            .unwrap();
 
         // Listen to events in another task
         tokio::spawn(async move {
