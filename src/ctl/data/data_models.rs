@@ -84,7 +84,7 @@ pub struct Monitor {
     pub available_modes: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug, HyprlandData)]
+#[derive(Serialize, Deserialize, Debug, HyprlandData, HyprlandDataWithArgument)]
 pub struct Monitors(Vec<Monitor>);
 auto_deref!(Monitors = Vec<Monitor>);
 
