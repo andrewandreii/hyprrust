@@ -83,6 +83,9 @@ mod data_tests {
 
         assert!(conn.get_sync::<Version>().is_ok());
         assert!(conn.get_sync::<Monitors>().is_ok());
+        assert!(conn
+            .get_with_argument_sync::<Monitors>("all".to_string())
+            .is_ok());
         assert!(conn.get_sync::<Workspace>().is_ok());
         assert!(conn.get_sync::<Workspaces>().is_ok());
         assert!(conn.get_sync::<WorkspaceRules>().is_ok());
