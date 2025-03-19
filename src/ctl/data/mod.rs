@@ -103,7 +103,7 @@ mod data_tests {
         assert!(conn.get_sync::<Binds>().is_ok());
         assert!(conn.get_sync::<Layers>().is_ok());
         assert!(conn
-            .get_with_argument_sync::<HyprlandOption>("misc:vfr".to_owned())
+            .get_with_argument_sync::<GetOption>("misc:vfr".to_owned())
             .is_ok());
         assert!(conn.get_sync::<CursorPosition>().is_ok());
         assert!(conn.get_sync::<Animations>().is_ok());

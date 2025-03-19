@@ -307,23 +307,24 @@ pub struct Layers {
     pub monitors: HashMap<String, Levels>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum OptionValue {
+    Int(i32),
+    Float(f32),
+    #[serde(rename = "str")]
+    String(String),
+    Custom(String),
+    Vec2([f32; 2]),
+}
+
 // NOTE: splash not implemented
 #[derive(Serialize, Deserialize, Debug, HyprlandDataWithArgument)]
-#[command = "getoption"]
-pub struct HyprlandOption {
+pub struct GetOption {
     #[serde(rename = "option")]
     path: String,
-    // TODO: is it better to have an enum for the values?
-    #[serde(rename = "int", default)]
-    int_value: i32,
-    #[serde(rename = "float", default)]
-    float_value: f32,
-    #[serde(rename = "str", default)]
-    str_value: String,
-    #[serde(rename = "custom", default)]
-    custom_value: String,
-    #[serde(rename = "vec2", default)]
-    vec2_value: [f32; 2],
+    #[serde(flatten)]
+    value: OptionValue,
     set: bool,
 }
 
