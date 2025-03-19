@@ -195,6 +195,11 @@ pub struct EventFilter {
 
 impl EventFilter {
     /// Creates a new filter with the specified inclusion.
+    ///
+    /// The filter works in the following way:
+    ///     - For `include == true`, all events added to the filter pass the filter;
+    ///     - For `include == false`, all events added to the filter are exluded and don't pass the
+    /// filter.
     pub fn new(include: bool) -> Self {
         EventFilter {
             filter_set: HashSet::new(),
@@ -234,9 +239,9 @@ impl EventFilter {
 }
 
 impl Default for EventFilter {
-    /// Equivalent to `Self::new_exclude_all()`
+    /// Equivalent to [`Self::new_include_all()`]
     fn default() -> Self {
-        Self::new_exclude_all()
+        Self::new_include_all()
     }
 }
 

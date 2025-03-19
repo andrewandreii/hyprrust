@@ -6,16 +6,14 @@ async fn main() {
     let mut conn = HyprlandConnection::current().unwrap();
 
     // This filter includes everything present in the list
-    let mut filter = [
+    let mut filter = EventFilter::from_iter([
         HyprlandEventType::ActiveWindow,
         HyprlandEventType::ActiveWindowV2,
         HyprlandEventType::WindowTitle,
         HyprlandEventType::WindowTitleV2,
         HyprlandEventType::DestroyWorkspace,
         HyprlandEventType::DestroyWorkspaceV2,
-    ]
-    .iter()
-    .collect::<EventFilter>();
+    ]);
 
     // Set the filter so it includes everything except what was in the list
     filter.set_include(false);
