@@ -17,7 +17,7 @@ async fn main() -> Result<(), io::Error> {
 
     println!(
         "Decorations active for current window: {:?}",
-        conn.get_with_argument::<Decorations>(format!("address:{}", current_win.address))
+        conn.get_with_argument::<Decorations>(current_win.into())
             .await?
             .iter()
             .map(|deco| deco.decoration_name.as_str())

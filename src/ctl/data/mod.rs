@@ -24,14 +24,13 @@ impl HyprlandConnection {
         Ok(serde_json::from_str(resp.as_str())?)
     }
 
-    // TODO: The argument should be of a type from arguments.rs
     /// Returns the data T requested from Hyprland also passing an argument
     ///
     /// See the example for [`get`].
     ///
     /// [`get`]: #method.get
     #[cfg(feature = "async")]
-    pub async fn get_with_argument<T>(&self, arg: String) -> Result<T, io::Error>
+    pub async fn get_with_argument<T>(&self, arg: T::Argument) -> Result<T, io::Error>
     where
         T: HyprlandDataWithArgument,
     {
@@ -61,7 +60,7 @@ impl HyprlandConnection {
     ///
     /// [`get_with_argument`]: #method.get_with_argument
     #[cfg(feature = "sync")]
-    pub fn get_with_argument_sync<T>(&self, arg: String) -> Result<T, io::Error>
+    pub fn get_with_argument_sync<T>(&self, arg: T::Argument) -> Result<T, io::Error>
     where
         T: HyprlandDataWithArgument,
     {
@@ -74,7 +73,10 @@ impl HyprlandConnection {
 
 #[cfg(test)]
 mod data_tests {
-    use crate::connection::HyprlandConnection;
+    use crate::{
+        arguments::{MonitorsDataArgument, WindowArgument},
+        connection::HyprlandConnection,
+    };
 
     #[test]
     fn test_data_models() {
@@ -84,7 +86,10 @@ mod data_tests {
         assert!(conn.get_sync::<Version>().is_ok());
         assert!(conn.get_sync::<Monitors>().is_ok());
         assert!(conn
-            .get_with_argument_sync::<Monitors>("all".to_string())
+            .get_with_argument_sync::<Monitors>(MonitorsDataArgument::JustActive)
+            .is_ok());
+        assert!(conn
+            .get_with_argument_sync::<Monitors>(MonitorsDataArgument::All)
             .is_ok());
         assert!(conn.get_sync::<Workspace>().is_ok());
         assert!(conn.get_sync::<Workspaces>().is_ok());
@@ -93,7 +98,7 @@ mod data_tests {
         assert!(conn.get_sync::<Windows>().is_ok());
         assert!(conn.get_sync::<Devices>().is_ok());
         assert!(conn
-            .get_with_argument_sync::<Decorations>("class:kitty".to_owned())
+            .get_with_argument_sync::<Decorations>(WindowArgument::Class("kitty".to_string()))
             .is_ok());
         assert!(conn.get_sync::<Binds>().is_ok());
         assert!(conn.get_sync::<Layers>().is_ok());

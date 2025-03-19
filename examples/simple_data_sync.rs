@@ -16,7 +16,7 @@ fn main() -> Result<(), io::Error> {
 
     println!(
         "Decorations active for current window: {:?}",
-        conn.get_with_argument_sync::<Decorations>(format!("address:{}", current_win.address))?
+        conn.get_with_argument_sync::<Decorations>(current_win.into())?
             .iter()
             .map(|deco| deco.decoration_name.as_str())
             .collect::<Vec<&str>>()

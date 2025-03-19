@@ -1,3 +1,5 @@
+use crate::arguments::Argument;
+
 use super::data_models::{FullscreenState, Layer, Levels, Sides};
 use serde::de::{DeserializeOwned, Error, Visitor};
 use serde::{Deserialize, Deserializer};
@@ -25,7 +27,9 @@ pub trait HyprlandData: DeserializeOwned {
 }
 
 pub trait HyprlandDataWithArgument: DeserializeOwned {
-    fn get_command(arg: String) -> String;
+    type Argument: Argument;
+
+    fn get_command(arg: Self::Argument) -> String;
 }
 
 struct SidesVisitor;

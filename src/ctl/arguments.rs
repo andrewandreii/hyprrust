@@ -432,3 +432,17 @@ impl Argument for NotifyIconArgument {
         .to_string()
     }
 }
+
+pub enum MonitorsDataArgument {
+    All,
+    JustActive,
+}
+
+impl Argument for MonitorsDataArgument {
+    fn to_argument_string(&self) -> String {
+        match self {
+            Self::All => "all".to_string(),
+            Self::JustActive => String::new(),
+        }
+    }
+}

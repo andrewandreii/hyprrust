@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::arguments::{Argument, MonitorsDataArgument, WindowArgument};
+
 use super::{HyprlandData, HyprlandDataWithArgument};
 use hyprrust_macros::{HyprlandData, HyprlandDataWithArgument};
 use serde::{Deserialize, Serialize};
@@ -85,6 +87,7 @@ pub struct Monitor {
 }
 
 #[derive(Serialize, Deserialize, Debug, HyprlandData, HyprlandDataWithArgument)]
+#[command(arg_type = MonitorsDataArgument)]
 pub struct Monitors(Vec<Monitor>);
 auto_deref!(Monitors = Vec<Monitor>);
 
@@ -258,6 +261,7 @@ pub struct Decoration {
 }
 
 #[derive(Serialize, Deserialize, Debug, HyprlandDataWithArgument)]
+#[command(arg_type = WindowArgument)]
 pub struct Decorations(Vec<Decoration>);
 auto_deref!(Decorations = Vec<Decoration>);
 
