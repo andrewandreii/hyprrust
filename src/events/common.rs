@@ -11,13 +11,20 @@ pub(crate) enum ParseError {
     FilteredOut,
 }
 
-// TODO: more thorough check
-fn parse_bool(arg: &str) -> bool {
-    arg.as_bytes()[0] == b'1'
+fn parse_bool(arg: &str) -> Result<bool, ParseError> {
+    if arg.len() > 1 {
+        return Err(ParseError::MalformedEvent);
+    }
+
+    match arg.as_bytes()[0] {
+        b'1' => Ok(true),
+        b'0' => Ok(false),
+        _ => Err(ParseError::MalformedEvent),
+    }
 }
 
-fn parse_int(arg: &str) -> i64 {
-    arg.parse().unwrap()
+fn parse_int(arg: &str) -> Result<i64, ParseError> {
+    Ok(arg.parse().map_err(|_| ParseError::MalformedEvent)?)
 }
 
 pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEvent, ParseError> {
@@ -40,7 +47,7 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
             name: argv[0].to_owned(),
         },
         "workspacev2" => HyprlandEvent::WorkspaceV2 {
-            id: parse_int(argv[0]),
+            id: parse_int(argv[0])?,
             name: argv[1].to_owned(),
         },
         "focusedmon" => HyprlandEvent::FocusedMonitor {
@@ -49,7 +56,7 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
         },
         "focusedmonv2" => HyprlandEvent::FocusedMonitorV2 {
             name: argv[0].to_owned(),
-            workspace_id: parse_int(argv[1]),
+            workspace_id: parse_int(argv[1])?,
         },
         "activewindow" => HyprlandEvent::ActiveWindow {
             class: argv[0].to_owned(),
@@ -59,7 +66,7 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
             address: argv[0].to_owned(),
         },
         "fullscreen" => HyprlandEvent::Fullscreen {
-            is_fullscreen: parse_bool(argv[0]),
+            is_fullscreen: parse_bool(argv[0])?,
         },
         "monitorremoved" => HyprlandEvent::MonitorRemoved {
             name: argv[0].to_owned(),
@@ -68,7 +75,7 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
             name: argv[0].to_owned(),
         },
         "monitoraddedv2" => HyprlandEvent::MonitorAddedV2 {
-            id: parse_int(argv[0]),
+            id: parse_int(argv[0])?,
             name: argv[1].to_owned(),
             description: argv[2].to_owned(),
         },
@@ -76,14 +83,14 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
             name: argv[0].to_owned(),
         },
         "createworkspacev2" => HyprlandEvent::CreateWorkspaceV2 {
-            id: parse_int(argv[0]),
+            id: parse_int(argv[0])?,
             name: argv[1].to_owned(),
         },
         "destroyworkspace" => HyprlandEvent::DestroyWorkspace {
             name: argv[0].to_owned(),
         },
         "destroyworkspacev2" => HyprlandEvent::DestroyWorkspaceV2 {
-            id: parse_int(argv[0]),
+            id: parse_int(argv[0])?,
             name: argv[1].to_owned(),
         },
         "moveworkspace" => HyprlandEvent::MoveWorkspace {
@@ -91,12 +98,12 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
             mon_name: argv[1].to_owned(),
         },
         "moveworkspacev2" => HyprlandEvent::MoveWorkspaceV2 {
-            id: parse_int(argv[0]),
+            id: parse_int(argv[0])?,
             name: argv[1].to_owned(),
             mon_name: argv[1].to_owned(),
         },
         "renameworkspace" => HyprlandEvent::RenameWorkspace {
-            id: parse_int(argv[0]),
+            id: parse_int(argv[0])?,
             name: argv[1].to_owned(),
         },
         "activespecial" => HyprlandEvent::ActiveSpecial {
@@ -122,7 +129,7 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
         },
         "movewindowv2" => HyprlandEvent::MoveWindowV2 {
             address: argv[0].to_owned(),
-            workspace_id: parse_int(argv[1]),
+            workspace_id: parse_int(argv[1])?,
             workspace_name: argv[2].to_owned(),
         },
         "openlayer" => HyprlandEvent::OpenLayer {
@@ -136,13 +143,13 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
         },
         "changefloatingmode" => HyprlandEvent::ChangeFloatingMode {
             window_address: argv[0].to_owned(),
-            floating: parse_bool(argv[1]),
+            floating: parse_bool(argv[1])?,
         },
         "urgent" => HyprlandEvent::Urgent {
             window_address: argv[0].to_owned(),
         },
         "screencast" => HyprlandEvent::Screencast {
-            state: parse_bool(argv[0]),
+            state: parse_bool(argv[0])?,
             owner: argv[1].to_owned(),
         },
         "windowtitle" => HyprlandEvent::WindowTitle {
@@ -153,7 +160,7 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
             title: argv[1].to_owned(),
         },
         "togglegroup" => HyprlandEvent::ToggleGroup {
-            state: parse_bool(argv[0]),
+            state: parse_bool(argv[0])?,
             handles: argv.iter().skip(1).map(|&slice| slice.to_owned()).collect(),
         },
         "moveintogroup" => HyprlandEvent::MoveIntoGroup {
@@ -163,15 +170,15 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
             address: argv[0].to_owned(),
         },
         "ignoregrouplock" => HyprlandEvent::IgnoreGroupLock {
-            is_on: parse_bool(argv[0]),
+            is_on: parse_bool(argv[0])?,
         },
         "lockgroups" => HyprlandEvent::LockGroups {
-            is_on: parse_bool(argv[0]),
+            is_on: parse_bool(argv[0])?,
         },
         "configreloaded" => HyprlandEvent::ConfigReloaded,
         "pin" => HyprlandEvent::Pin {
             address: argv[0].to_owned(),
-            pin_state: parse_bool(argv[1]),
+            pin_state: parse_bool(argv[1])?,
         },
         _ => {
             if ev_name != "custom" {
