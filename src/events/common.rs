@@ -110,6 +110,11 @@ pub(crate) fn parse_event(msg: &str, filter: &EventFilter) -> Result<HyprlandEve
             name: argv[0].to_owned(),
             mon_name: argv[1].to_owned(),
         },
+        "activespecialv2" => HyprlandEvent::ActiveSpecialV2 {
+            id: parse_int(argv[0])?,
+            name: argv[1].to_owned(),
+            mon_name: argv[2].to_owned(),
+        },
         "activelayout" => HyprlandEvent::ActiveLayout {
             keyboard_name: argv[0].to_owned(),
             layout_name: argv[1].to_owned(),

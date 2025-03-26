@@ -164,7 +164,7 @@ impl From<Monitor> for MonitorArgument {
 #[derive(Debug, Clone, Copy)]
 pub enum NumPercent {
     Number(i32),
-    Percent(u32),
+    Percent(i32),
 }
 
 impl fmt::Display for NumPercent {
@@ -443,6 +443,54 @@ impl Argument for MonitorsDataArgument {
         match self {
             Self::All => "all".to_string(),
             Self::JustActive => String::new(),
+        }
+    }
+}
+
+pub enum ChangeGroupActiveArgument {
+    Index(i32),
+    Back,
+    Forward,
+}
+
+impl Argument for ChangeGroupActiveArgument {
+    fn to_argument_string(&self) -> String {
+        match self {
+            Self::Index(i) => i.to_string(),
+            Self::Back => "b".to_string(),
+            Self::Forward => "f".to_string(),
+        }
+    }
+}
+
+pub enum LockGroupArgument {
+    Lock,
+    Unlock,
+    Toggle,
+}
+
+impl Argument for LockGroupArgument {
+    fn to_argument_string(&self) -> String {
+        match self {
+            LockGroupArgument::Lock => "lock".to_string(),
+            LockGroupArgument::Unlock => "unlock".to_string(),
+            LockGroupArgument::Toggle => "toggle".to_string(),
+        }
+    }
+}
+
+pub enum BoolChangeArgument {
+    On,
+    Off,
+    Toggle,
+}
+
+impl Argument for BoolChangeArgument {
+    fn to_argument_string(&self) -> String {
+        match self {
+            BoolChangeArgument::On => "on".to_string(),
+            BoolChangeArgument::Off => "off".to_string(),
+            BoolChangeArgument::Toggle => "toggle".to_string(),
         }
     }
 }
