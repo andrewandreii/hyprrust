@@ -71,6 +71,11 @@ pub enum HyprlandEvent {
         name: String,
         mon_name: String,
     },
+    ActiveSpecialV2 {
+        id: i64,
+        name: String,
+        mon_name: String,
+    },
     ActiveLayout {
         keyboard_name: String,
         layout_name: String,
